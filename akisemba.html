@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evento Akisemba</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0f; font-family: 'Jost', sans-serif; font-weight: 300; color: #f0e8d0; min-height: 100vh; overflow-x: hidden; }
+
+    .bg-pattern { position: fixed; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212,175,55,0.03) 40px, rgba(212,175,55,0.03) 41px), repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(212,175,55,0.03) 40px, rgba(212,175,55,0.03) 41px); pointer-events: none; z-index: 0; }
+    .content { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* HEADER */
+    .header { text-align: center; padding: 2.5rem 0 2rem; }
+    .header::after { content: ''; display: block; width: 120px; height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); margin: 1.25rem auto 0; }
+    .header-eyebrow { font-weight: 500; letter-spacing: 0.35em; font-size: 0.6rem; color: #d4af37; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 8vw, 5rem); font-weight: 700; line-height: 1; white-space: nowrap; color: #ffffff; letter-spacing: 0.04em; text-shadow: 0 2px 24px rgba(212,175,55,0.35); }
+    .header-sub { font-size: 0.8rem; color: rgba(240,232,208,0.45); margin-top: 0.4rem; letter-spacing: 0.1em; font-style: italic; font-family: 'Playfair Display', serif; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
+    .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.15); border-radius: 4px; padding: 1rem 0.75rem; text-align: center; position: relative; overflow: hidden; transition: border-color 0.3s, background 0.3s; }
+    .stat-card:hover { border-color: rgba(212,175,55,0.35); background: rgba(212,175,55,0.04); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #d4af37, transparent); opacity: 0.5; }
+    .stat-card.green-card::before { background: linear-gradient(90deg, transparent, #5cb87a, transparent); }
+    .stat-card.red-card::before { background: linear-gradient(90deg, transparent, #e07070, transparent); }
+    .stat-card.highlight { border-color: rgba(212,175,55,0.3); background: rgba(212,175,55,0.06); }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #d4af37; font-weight: 700; line-height: 1; margin-bottom: 0.25rem; }
+    .stat-value.green { color: #5cb87a; }
+    .stat-value.red { color: #e07070; }
+    .stat-value.gold { font-size: 1.2rem; }
+    .stat-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(240,232,208,0.38); font-weight: 500; }
+
+    /* FORM */
+    .form-section { background: rgba(255,255,255,0.025); border: 1px solid rgba(212,175,55,0.15); border-radius: 4px; padding: 1.75rem; margin-bottom: 2rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #d4af37; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; letter-spacing: 0.05em; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(212,175,55,0.2); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-bottom: 0.9rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group.full { grid-column: 1/-1; }
+    .form-group label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(240,232,208,0.45); font-weight: 500; }
+    .form-group input { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 3px; padding: 0.65rem 0.85rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300; transition: border-color 0.2s, background 0.2s; outline: none; width: 100%; }
+    .form-group input:focus { border-color: #d4af37; background: rgba(212,175,55,0.06); }
+    .form-group input::placeholder { color: rgba(240,232,208,0.2); }
+
+    /* TIPO */
+    .tipo-group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-bottom: 1.1rem; }
+    .tipo-option { position: relative; cursor: pointer; }
+    .tipo-option input[type=radio] { display: none; }
+    .tipo-card { border: 1px solid rgba(212,175,55,0.2); border-radius: 4px; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.25s; user-select: none; }
+    .tipo-option input:checked + .tipo-card { border-color: #d4af37; background: rgba(212,175,55,0.1); box-shadow: 0 0 18px rgba(212,175,55,0.1); }
+    .tipo-card:hover { border-color: rgba(212,175,55,0.5); }
+    .tipo-name { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: #f0e8d0; }
+    .tipo-sub { font-size: 0.6rem; color: rgba(240,232,208,0.38); letter-spacing: 0.1em; margin-top: 0.12rem; text-transform: uppercase; }
+    .tipo-precio { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #d4af37; font-weight: 700; }
+
+    /* TOGGLE */
+    .pagado-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; padding: 0.75rem 1rem; border: 1px solid rgba(212,175,55,0.12); border-radius: 3px; background: rgba(255,255,255,0.02); cursor: pointer; }
+    .toggle-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { display: none; }
+    .toggle-track { position: absolute; inset: 0; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); transition: background 0.25s, border-color 0.25s; }
+    .toggle-switch input:checked + .toggle-track { background: rgba(92,184,122,0.25); border-color: rgba(92,184,122,0.6); }
+    .toggle-thumb { position: absolute; top: 4px; left: 4px; width: 14px; height: 14px; border-radius: 50%; background: rgba(240,232,208,0.35); transition: transform 0.25s, background 0.25s; pointer-events: none; }
+    .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(18px); background: #5cb87a; }
+    .toggle-label { font-size: 0.78rem; color: rgba(240,232,208,0.55); letter-spacing: 0.08em; transition: color 0.2s; }
+    .toggle-label.active { color: #5cb87a; }
+
+    .btn-submit { width: 100%; padding: 0.85rem; background: linear-gradient(135deg, #c9a227, #d4af37); border: none; border-radius: 3px; color: #0a0a0f; font-family: 'Jost', sans-serif; font-weight: 500; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+    .btn-submit:hover { opacity: 0.9; }
+    .btn-submit:active { transform: scale(0.99); }
+
+    /* FILTERS */
+    .filters { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .filter-btn { padding: 0.28rem 0.85rem; border: 1px solid rgba(212,175,55,0.18); background: transparent; color: rgba(240,232,208,0.4); font-family: 'Jost', sans-serif; font-size: 0.63rem; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+    .filter-btn.active { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.08); }
+    .filter-btn:hover { border-color: rgba(212,175,55,0.45); color: rgba(240,232,208,0.75); }
+    .filter-sep { width: 1px; height: 14px; background: rgba(212,175,55,0.2); margin: 0 0.2rem; flex-shrink: 0; align-self: center; }
+    .search-input { margin-left: auto; background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.15); border-radius: 2px; padding: 0.28rem 0.75rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 160px; transition: border-color 0.2s; }
+    .search-input:focus { border-color: rgba(212,175,55,0.4); }
+    .search-input::placeholder { color: rgba(240,232,208,0.2); }
+
+    /* TABLE */
+    .table-section { background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.12); border-radius: 4px; overflow: hidden; }
+    .table-header-row { display: grid; grid-template-columns: 40px 1fr 1fr 115px 65px 75px 120px; padding: 0.6rem 1rem; background: rgba(212,175,55,0.07); border-bottom: 1px solid rgba(212,175,55,0.12); gap: 0.5rem; align-items: center; }
+    .th { font-size: 0.57rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(212,175,55,0.5); font-weight: 500; }
+    .ticket-row { display: grid; grid-template-columns: 40px 1fr 1fr 115px 65px 75px 120px; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; gap: 0.5rem; transition: background 0.2s; }
+    .ticket-row:hover { background: rgba(212,175,55,0.03); }
+    .ticket-row:last-child { border-bottom: none; }
+    .ticket-row.editing-row { background: rgba(212,175,55,0.05); border-left: 2px solid #d4af37; }
+    .td { font-size: 0.82rem; color: rgba(240,232,208,0.75); overflow: hidden; }
+    .td-num { font-family: 'Playfair Display', serif; color: rgba(212,175,55,0.4); font-size: 0.76rem; }
+    .td-name { font-weight: 400; color: #f0e8d0; }
+    .td-contact { color: rgba(240,232,208,0.42); font-size: 0.76rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .td-price { font-family: 'Playfair Display', serif; color: #d4af37; font-weight: 700; font-size: 0.95rem; }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.17rem 0.45rem; border-radius: 2px; font-size: 0.57rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; white-space: nowrap; }
+    .badge-anticipada { background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.28); color: #d4af37; }
+    .badge-puerta { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,232,208,0.45); }
+
+    .pagado-badge { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.62rem; letter-spacing: 0.08em; font-weight: 500; cursor: pointer; padding: 0.2rem 0.45rem; border-radius: 2px; border: 1px solid; transition: all 0.2s; user-select: none; white-space: nowrap; }
+    .pagado-badge.si { color: #5cb87a; border-color: rgba(92,184,122,0.35); background: rgba(92,184,122,0.08); }
+    .pagado-badge.no { color: rgba(240,232,208,0.3); border-color: rgba(255,255,255,0.08); background: transparent; }
+    .pagado-badge:hover { opacity: 0.75; }
+
+    .actions { display: flex; gap: 0.3rem; align-items: center; }
+    .btn-action { background: none; border: 1px solid rgba(212,175,55,0.15); color: rgba(240,232,208,0.3); cursor: pointer; font-size: 0.62rem; transition: all 0.2s; padding: 0.22rem 0.5rem; border-radius: 2px; font-family: 'Jost', sans-serif; letter-spacing: 0.06em; white-space: nowrap; }
+    .btn-action.edit:hover { color: #d4af37; border-color: #d4af37; background: rgba(212,175,55,0.08); }
+    .btn-action.delete { border-color: transparent; font-size: 0.75rem; }
+    .btn-action.delete:hover { color: #e05252; border-color: rgba(224,82,82,0.28); }
+    .btn-action.save { background: #5cb87a; border-color: #5cb87a; color: #0a0a0f; font-weight: 500; }
+    .btn-action.cancel-btn { border-color: rgba(255,255,255,0.12); color: rgba(240,232,208,0.45); }
+    .btn-action.confirm-yes { background: #e05252; border-color: #e05252; color: #fff; }
+    .btn-action.confirm-no { border-color: rgba(255,255,255,0.12); color: rgba(240,232,208,0.45); }
+
+    .inline-input { background: rgba(255,255,255,0.07); border: 1px solid rgba(212,175,55,0.3); border-radius: 2px; padding: 0.28rem 0.45rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 100%; margin-bottom: 0.25rem; display: block; }
+    .inline-input:last-child { margin-bottom: 0; }
+    .inline-input:focus { border-color: #d4af37; }
+    .inline-select { background: #111118; border: 1px solid rgba(212,175,55,0.3); border-radius: 2px; padding: 0.25rem 0.4rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.75rem; outline: none; width: 100%; cursor: pointer; }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: rgba(240,232,208,0.2); }
+    .empty-state .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .empty-state p { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.88rem; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 0.65rem 1.3rem; border-radius: 3px; font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.5); animation: toastIn 0.3s ease; background: #d4af37; color: #0a0a0f; }
+    .toast.green { background: #5cb87a; color: #0a0a0f; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes rowIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .row-anim { animation: rowIn 0.3s ease forwards; }
+
+    @media (max-width: 720px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 105px 58px 90px; }
+      .col-contacto, .col-precio { display: none; }
+      .search-input { width: 110px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <div class="content">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-eyebrow">✦ Gestión de Entradas ✦</div>
+      <h1>Evento Akisemba</h1>
+      <div class="header-sub">11 de abril · Control de acceso &amp; recaudación</div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total entradas</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-anticipadas">0</div><div class="stat-label">Anticipadas</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-puerta">0</div><div class="stat-label">En puerta</div></div>
+      <div class="stat-card green-card"><div class="stat-value green" id="stat-pagadas">0</div><div class="stat-label">Pagadas</div></div>
+      <div class="stat-card red-card"><div class="stat-value red" id="stat-pendientes">0</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat-card highlight"><div class="stat-value gold" id="stat-euros">0 €</div><div class="stat-label">Total previsto</div></div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-section">
+      <div class="section-title" id="form-title">Nueva entrada</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="inp-nombre" placeholder="María" />
+        </div>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" id="inp-apellidos" placeholder="García López" />
+        </div>
+        <div class="form-group full">
+          <label>Contacto (teléfono / email)</label>
+          <input type="text" id="inp-contacto" placeholder="600 000 000 · maria@email.com" />
+        </div>
+      </div>
+      <div class="tipo-group">
+        <label class="tipo-option">
+          <input type="radio" name="tipo" value="anticipada" id="tipo-anticipada" checked />
+          <div class="tipo-card">
+            <div><div class="tipo-name">Venta anticipada</div><div class="tipo-sub">Pago previo al evento</div></div>
+            <div class="tipo-precio">10 €</div>
+          </div>
+        </label>
+        <label class="tipo-option">
+          <input type="radio" name="tipo" value="puerta" id="tipo-puerta" />
+          <div class="tipo-card">
+            <div><div class="tipo-name">Venta en puerta</div><div class="tipo-sub">Día del evento</div></div>
+            <div class="tipo-precio">13 €</div>
+          </div>
+        </label>
+      </div>
+      <label class="pagado-row" id="pagado-row">
+        <div class="toggle-switch">
+          <input type="checkbox" id="inp-pagado" />
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </div>
+        <span class="toggle-label" id="pagado-label">Pendiente de pago</span>
+      </label>
+      <button class="btn-submit" id="btn-submit">✦ Registrar entrada — 10 €</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="tipo" data-value="todas">Todas</button>
+      <button class="filter-btn" data-filter="tipo" data-value="anticipada">Anticipada</button>
+      <button class="filter-btn" data-filter="tipo" data-value="puerta">Puerta</button>
+      <div class="filter-sep"></div>
+      <button class="filter-btn active" data-filter="pago" data-value="todas">Pago: todas</button>
+      <button class="filter-btn" data-filter="pago" data-value="pagado">✓ Pagadas</button>
+      <button class="filter-btn" data-filter="pago" data-value="pendiente">Pendientes</button>
+      <input type="text" class="search-input" id="search-input" placeholder="Buscar…" />
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-section">
+      <div class="table-header-row">
+        <span class="th">#</span>
+        <span class="th">Nombre</span>
+        <span class="th col-contacto">Contacto</span>
+        <span class="th">Tipo</span>
+        <span class="th col-precio">Precio</span>
+        <span class="th">Pagado</span>
+        <span class="th">Acciones</span>
+      </div>
+      <div id="ticket-list">
+        <div class="empty-state"><div class="icon">🎭</div><p>Aún no hay entradas registradas</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const PRECIO = { anticipada: 10, puerta: 13 };
+    let tickets = [];
+    let filterTipo = 'todas';
+    let filterPago = 'todas';
+    let searchQ = '';
+    let editId = null;
+    let confirmId = null;
+
+    // Persist
+    function save() { try { localStorage.setItem('akisemba-v2', JSON.stringify(tickets)); } catch(e){} }
+    function load() { try { tickets = JSON.parse(localStorage.getItem('akisemba-v2') || '[]'); } catch(e){ tickets = []; } }
+
+    function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+    // Toast
+    function showToast(msg, type='') {
+      const old = document.getElementById('toast');
+      if (old) old.remove();
+      const t = document.createElement('div');
+      t.id = 'toast';
+      t.className = 'toast' + (type ? ' ' + type : '');
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2600);
+    }
+
+    // Stats
+    function updateStats() {
+      const ant = tickets.filter(t => t.tipo === 'anticipada').length;
+      const pue = tickets.filter(t => t.tipo === 'puerta').length;
+      const pag = tickets.filter(t => t.pagado).length;
+      const total = ant * PRECIO.anticipada + pue * PRECIO.puerta;
+      document.getElementById('stat-total').textContent = tickets.length;
+      document.getElementById('stat-anticipadas').textContent = ant;
+      document.getElementById('stat-puerta').textContent = pue;
+      document.getElementById('stat-pagadas').textContent = pag;
+      document.getElementById('stat-pendientes').textContent = tickets.length - pag;
+      document.getElementById('stat-euros').textContent = total + ' €';
+    }
+
+    // Render list
+    function render() {
+      updateStats();
+      const list = document.getElementById('ticket-list');
+      const filtered = tickets.filter(t => {
+        const mt = filterTipo === 'todas' || t.tipo === filterTipo;
+        const mp = filterPago === 'todas' || (filterPago === 'pagado' ? t.pagado : !t.pagado);
+        const q = searchQ.toLowerCase();
+        const ms = !q || (t.nombre + ' ' + t.apellidos + ' ' + t.contacto).toLowerCase().includes(q);
+        return mt && mp && ms;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="icon">🎭</div><p>' +
+          (tickets.length === 0 ? 'Aún no hay entradas registradas' : 'Sin resultados para este filtro') +
+          '</p></div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map((t, i) => {
+        const isEdit = editId === t.id;
+        const isConfirm = confirmId === t.id;
+
+        const nombreCell = isEdit
+          ? `<input class="inline-input" data-field="nombre" value="${esc(t.nombre)}" placeholder="Nombre">
+             <input class="inline-input" data-field="apellidos" value="${esc(t.apellidos)}" placeholder="Apellidos">`
+          : esc(t.nombre + ' ' + t.apellidos);
+
+        const contactoCell = isEdit
+          ? `<input class="inline-input" data-field="contacto" value="${esc(t.contacto)}" placeholder="Contacto">`
+          : (t.contacto ? esc(t.contacto) : '—');
+
+        const tipoCell = isEdit
+          ? `<select class="inline-select" data-field="tipo">
+               <option value="anticipada" ${t.tipo==='anticipada'?'selected':''}>Anticipada (10 €)</option>
+               <option value="puerta" ${t.tipo==='puerta'?'selected':''}>Puerta (13 €)</option>
+             </select>`
+          : `<span class="badge badge-${t.tipo}">${t.tipo === 'anticipada' ? '⬥ Anticipada' : '◈ Puerta'}</span>`;
+
+        const precioCell = t.precio + ' €';
+
+        const pagadoCell = isEdit
+          ? `<div class="toggle-switch" style="margin:0 auto">
+               <input type="checkbox" data-field="pagado" ${t.pagado?'checked':''}>
+               <div class="toggle-track"></div>
+               <div class="toggle-thumb"></div>
+             </div>`
+          : `<span class="pagado-badge ${t.pagado?'si':'no'}" data-action="toggle" data-id="${t.id}">${t.pagado ? '✓ Sí' : '✕ No'}</span>`;
+
+        let accionesCell;
+        if (isEdit) {
+          accionesCell = `<div class="actions">
+            <button class="btn-action save" data-action="save" data-id="${t.id}">Guardar</button>
+            <button class="btn-action cancel-btn" data-action="cancel">✕</button>
+          </div>`;
+        } else if (isConfirm) {
+          accionesCell = `<div class="actions">
+            <button class="btn-action confirm-yes" data-action="delete-confirm" data-id="${t.id}">Sí</button>
+            <button class="btn-action confirm-no" data-action="cancel-delete">No</button>
+          </div>`;
+        } else {
+          accionesCell = `<div class="actions">
+            <button class="btn-action edit" data-action="edit" data-id="${t.id}">✎ Editar</button>
+            <button class="btn-action delete" data-action="delete" data-id="${t.id}">✕</button>
+          </div>`;
+        }
+
+        return `<div class="ticket-row row-anim ${isEdit?'editing-row':''}" data-id="${t.id}" style="animation-delay:${i*0.03}s">
+          <span class="td td-num">${t.numero}</span>
+          <span class="td td-name">${nombreCell}</span>
+          <span class="td td-contact col-contacto">${contactoCell}</span>
+          <span class="td">${tipoCell}</span>
+          <span class="td td-price col-precio">${precioCell}</span>
+          <span class="td">${pagadoCell}</span>
+          <span class="td">${accionesCell}</span>
+        </div>`;
+      }).join('');
+
+      // Sync toggle thumbs after render
+      list.querySelectorAll('.toggle-switch input[type=checkbox]').forEach(cb => {
+        const thumb = cb.parentElement.querySelector('.toggle-thumb');
+        const track = cb.parentElement.querySelector('.toggle-track');
+        if (cb.checked) {
+          track.style.background = 'rgba(92,184,122,0.25)';
+          track.style.borderColor = 'rgba(92,184,122,0.6)';
+          thumb.style.transform = 'translateX(18px)';
+          thumb.style.background = '#5cb87a';
+        }
+        cb.addEventListener('change', () => {
+          const th = cb.parentElement.querySelector('.toggle-thumb');
+          const tr = cb.parentElement.querySelector('.toggle-track');
+          if (cb.checked) {
+            tr.style.background = 'rgba(92,184,122,0.25)';
+            tr.style.borderColor = 'rgba(92,184,122,0.6)';
+            th.style.transform = 'translateX(18px)';
+            th.style.background = '#5cb87a';
+          } else {
+            tr.style.background = '';
+            tr.style.borderColor = '';
+            th.style.transform = '';
+            th.style.background = '';
+          }
+        });
+      });
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Get edit data from DOM
+    function getEditDataFromRow(id) {
+      const row = document.querySelector(`.ticket-row[data-id="${id}"]`);
+      if (!row) return null;
+      const d = {};
+      row.querySelectorAll('[data-field]').forEach(el => {
+        if (el.type === 'checkbox') d[el.dataset.field] = el.checked;
+        else d[el.dataset.field] = el.value;
+      });
+      return d;
+    }
+
+    // Actions
+    document.getElementById('ticket-list').addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+
+      if (action === 'toggle') {
+        tickets = tickets.map(t => t.id === id ? {...t, pagado: !t.pagado} : t);
+        save(); render();
+      }
+      if (action === 'edit') {
+        editId = id; confirmId = null; render();
+      }
+      if (action === 'cancel') {
+        editId = null; render();
+      }
+      if (action === 'save') {
+        const d = getEditDataFromRow(id);
+        if (!d || !d.nombre || !d.nombre.trim()) return showToast('El nombre no puede estar vacío');
+        tickets = tickets.map(t => t.id === id ? {
+          ...t,
+          nombre: d.nombre.trim(),
+          apellidos: (d.apellidos||'').trim(),
+          contacto: (d.contacto||'').trim(),
+          tipo: d.tipo,
+          precio: PRECIO[d.tipo],
+          pagado: !!d.pagado
+        } : t);
+        editId = null; save(); render();
+        showToast('✓ Cambios guardados', 'green');
+      }
+      if (action === 'delete') {
+        confirmId = id; editId = null; render();
+      }
+      if (action === 'cancel-delete') {
+        confirmId = null; render();
+      }
+      if (action === 'delete-confirm') {
+        tickets = tickets.filter(t => t.id !== id);
+        confirmId = null; save(); render();
+        showToast('Entrada eliminada');
+      }
+    });
+
+    // Form submit
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      const nombre = document.getElementById('inp-nombre').value.trim();
+      if (!nombre) return showToast('Indica el nombre del asistente');
+      const tipo = document.querySelector('input[name="tipo"]:checked').value;
+      const ticket = {
+        id: genId(),
+        numero: tickets.length + 1,
+        nombre,
+        apellidos: document.getElementById('inp-apellidos').value.trim(),
+        contacto: document.getElementById('inp-contacto').value.trim(),
+        tipo,
+        precio: PRECIO[tipo],
+        pagado: document.getElementById('inp-pagado').checked,
+        fecha: new Date().toLocaleDateString('es-ES')
+      };
+      tickets.unshift(ticket);
+      document.getElementById('inp-nombre').value = '';
+      document.getElementById('inp-apellidos').value = '';
+      document.getElementById('inp-contacto').value = '';
+      document.getElementById('inp-pagado').checked = false;
+      updatePagadoLabel();
+      save(); render();
+      showToast('✓ Entrada registrada');
+    });
+
+    // Pagado toggle in form
+    document.getElementById('inp-pagado').addEventListener('change', updatePagadoLabel);
+    function updatePagadoLabel() {
+      const cb = document.getElementById('inp-pagado');
+      const lbl = document.getElementById('pagado-label');
+      const track = document.querySelector('#pagado-row .toggle-track');
+      const thumb = document.querySelector('#pagado-row .toggle-thumb');
+      if (cb.checked) {
+        lbl.textContent = '✓ Pagado'; lbl.classList.add('active');
+        track.style.background = 'rgba(92,184,122,0.25)';
+        track.style.borderColor = 'rgba(92,184,122,0.6)';
+        thumb.style.transform = 'translateX(18px)';
+        thumb.style.background = '#5cb87a';
+      } else {
+        lbl.textContent = 'Pendiente de pago'; lbl.classList.remove('active');
+        track.style.background = '';
+        track.style.borderColor = '';
+        thumb.style.transform = '';
+        thumb.style.background = '';
+      }
+    }
+
+    // Tipo change → update button text
+    document.querySelectorAll('input[name="tipo"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const precio = r.value === 'anticipada' ? 10 : 13;
+        document.getElementById('btn-submit').textContent = `✦ Registrar entrada — ${precio} €`;
+      });
+    });
+
+    // Enter key on nombre
+    document.getElementById('inp-nombre').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btn-submit').click();
+    });
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.dataset.filter;
+        document.querySelectorAll(`.filter-btn[data-filter="${group}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (group === 'tipo') filterTipo = btn.dataset.value;
+        else filterPago = btn.dataset.value;
+        render();
+      });
+    });
+
+    document.getElementById('search-input').addEventListener('input', e => {
+      searchQ = e.target.value; render();
+    });
+
+    // Init
+    load();
+    render();
+  </script>
+</body>
+</html>
