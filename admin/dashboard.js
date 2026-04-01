@@ -1,7 +1,7 @@
 /* =========================================
    CONFIG
    ========================================= */
-const API = 'http://localhost:3002/api';
+const API = window.location.origin + '/api';
 
 /* =========================================
    CHART.JS DEFAULTS (tema oscuro)

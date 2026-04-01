@@ -17,7 +17,14 @@ const EMAILJS_CONFIG = {
 /* =========================================
    ⚙️  CONFIGURACIÓN BACKEND
    ========================================= */
-const BACKEND_URL = 'http://localhost:3002/api';
+const BACKEND_URL = (() => {
+  const h = window.location.hostname;
+  if (h.includes('.app.github.dev')) {
+    // GitHub Codespaces: reemplaza el puerto de la URL actual con 3002
+    return 'https://' + h.replace(/-\d+\.app\.github\.dev$/, '-3002.app.github.dev') + '/api';
+  }
+  return 'http://localhost:3002/api';
+})();
 
 // ¿Está EmailJS configurado con credenciales reales?
 const EMAILJS_READY = (
