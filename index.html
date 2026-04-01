@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RitmoBoleto — Entradas para Eventos de Baile</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-icon">💃</span>
+      <span class="brand-name">RitmoBoleto</span>
+    </div>
+    <nav class="navbar-links">
+      <a href="#eventos">Eventos</a>
+      <a href="#estilos">Estilos</a>
+    </nav>
+    <button class="cart-btn" id="cartBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Carrito
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-tag">La plataforma #1 de baile en España</p>
+      <h1 class="hero-title">Vive el ritmo.<br>Compra tu entrada.</h1>
+      <p class="hero-sub">Salsa, Bachata, Tango, Flamenco y mucho más. Encuentra tu próxima noche de baile.</p>
+      <a href="#eventos" class="hero-cta">Ver todos los eventos</a>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-orb orb1"></div>
+      <div class="hero-orb orb2"></div>
+      <div class="hero-orb orb3"></div>
+      <div class="dancing-figures">
+        <div class="figure f1">💃</div>
+        <div class="figure f2">🕺</div>
+        <div class="figure f3">💃</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTROS DE ESTILO -->
+  <section class="filter-section" id="estilos">
+    <div class="container">
+      <h2 class="section-title">Explora por estilo</h2>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="todos">Todos</button>
+        <button class="filter-tab" data-filter="salsa">Salsa</button>
+        <button class="filter-tab" data-filter="bachata">Bachata</button>
+        <button class="filter-tab" data-filter="tango">Tango</button>
+        <button class="filter-tab" data-filter="flamenco">Flamenco</button>
+        <button class="filter-tab" data-filter="swing">Swing</button>
+        <button class="filter-tab" data-filter="kizomba">Kizomba</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTA DE EVENTOS -->
+  <section class="events-section" id="eventos">
+    <div class="container">
+      <div class="events-header">
+        <h2 class="section-title">Próximos eventos</h2>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar por ciudad o nombre..." />
+        </div>
+      </div>
+      <div class="events-grid" id="eventsGrid">
+        <!-- Cards generadas por JS -->
+      </div>
+      <p class="no-results hidden" id="noResults">No se encontraron eventos con esos filtros.</p>
+    </div>
+  </section>
+
+  <!-- MODAL DE EVENTO -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" id="eventModal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div class="modal-image" id="modalImage"></div>
+      <div class="modal-body">
+        <div class="modal-tag" id="modalTag"></div>
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="modal-meta">
+          <span id="modalDate"></span>
+          <span id="modalLocation"></span>
+          <span id="modalArtist"></span>
+        </div>
+        <p class="modal-desc" id="modalDesc"></p>
+
+        <div class="ticket-selector">
+          <h3>Selecciona tus entradas</h3>
+          <div class="ticket-types" id="ticketTypes"></div>
+        </div>
+
+        <div class="modal-footer">
+          <div class="modal-total">
+            Total: <strong id="modalTotal">0,00 €</strong>
+          </div>
+          <button class="btn-primary" id="addToCartBtn">Añadir al carrito</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARRITO LATERAL -->
+  <div class="cart-overlay hidden" id="cartOverlay"></div>
+  <aside class="cart-panel hidden" id="cartPanel">
+    <div class="cart-header">
+      <h2>Tu carrito</h2>
+      <button class="cart-close-btn" id="cartClose">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty" id="cartEmpty">
+        <span>🎟️</span>
+        <p>Aún no tienes entradas.</p>
+      </div>
+    </div>
+    <div class="cart-summary hidden" id="cartSummary">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <strong id="cartTotal">0,00 €</strong>
+      </div>
+      <button class="btn-primary btn-block" id="checkoutBtn">Comprar ahora</button>
+    </div>
+  </aside>
+
+  <!-- MODAL DE CHECKOUT -->
+  <div class="modal-overlay hidden" id="checkoutOverlay">
+    <div class="modal checkout-modal" id="checkoutModal">
+      <button class="modal-close" id="checkoutClose">&times;</button>
+      <div class="checkout-steps">
+        <div class="step active" id="step1Indicator"><span>1</span> Datos</div>
+        <div class="step-line"></div>
+        <div class="step" id="step2Indicator"><span>2</span> Pago</div>
+        <div class="step-line"></div>
+        <div class="step" id="step3Indicator"><span>3</span> Confirmación</div>
+      </div>
+
+      <!-- Paso 1: Datos personales -->
+      <div id="checkoutStep1">
+        <h2>Tus datos</h2>
+        <form id="checkoutForm" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="firstName" placeholder="Ana" required />
+            </div>
+            <div class="form-group">
+              <label>Apellidos *</label>
+              <input type="text" id="lastName" placeholder="García" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico *</label>
+            <input type="email" id="email" placeholder="ana@ejemplo.com" required />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="phone" placeholder="+34 600 000 000" />
+          </div>
+          <button type="button" class="btn-primary btn-block" id="goToPayment">Continuar al pago</button>
+        </form>
+      </div>
+
+      <!-- Paso 2: Pago -->
+      <div id="checkoutStep2" class="hidden">
+        <h2>Método de pago</h2>
+        <div class="payment-methods">
+          <label class="payment-option">
+            <input type="radio" name="payment" value="card" checked />
+            <span class="payment-icon">💳</span> Tarjeta de crédito/débito
+          </label>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="paypal" />
+            <span class="payment-icon">🅿</span> PayPal
+          </label>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="bizum" />
+            <span class="payment-icon">📱</span> Bizum
+          </label>
+        </div>
+        <div class="card-fields" id="cardFields">
+          <div class="form-group">
+            <label>Número de tarjeta</label>
+            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Caducidad</label>
+              <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5" />
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input type="text" id="cardCvv" placeholder="123" maxlength="3" />
+            </div>
+          </div>
+        </div>
+        <div class="checkout-order-summary" id="orderSummaryPreview"></div>
+        <div class="form-row">
+          <button type="button" class="btn-secondary" id="backToData">Volver</button>
+          <button type="button" class="btn-primary" id="confirmPayment">Confirmar pago</button>
+        </div>
+      </div>
+
+      <!-- Paso 3: Confirmación -->
+      <div id="checkoutStep3" class="hidden">
+        <div class="confirmation">
+          <div class="confirmation-icon">✅</div>
+          <h2>¡Compra realizada!</h2>
+          <p id="confirmationMsg"></p>
+          <div class="ticket-code" id="ticketCode"></div>
+          <p class="confirmation-note">Recibirás tus entradas en el correo electrónico proporcionado.</p>
+          <button class="btn-primary" id="finishBtn">Volver a eventos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-brand">
+        <span>💃</span> RitmoBoleto
+      </div>
+      <p>© 2026 RitmoBoleto · Todos los derechos reservados</p>
+      <div class="footer-links">
+        <a href="#">Política de privacidad</a>
+        <a href="#">Términos y condiciones</a>
+        <a href="#">Contacto</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

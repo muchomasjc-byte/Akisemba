@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RitmoBoleto — Panel de Administración</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span>💃</span>
+      <span>RitmoBoleto</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Resumen
+      </a>
+      <a href="#" class="nav-item" data-section="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Pedidos
+      </a>
+      <a href="#" class="nav-item" data-section="charts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Análisis
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Ir a la tienda
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">Resumen</h1>
+        <span class="topbar-sub" id="pageSubtitle">Visión general de ventas</span>
+      </div>
+      <div class="topbar-right">
+        <span class="status-dot"></span>
+        <span id="lastUpdate">Actualizando…</span>
+        <button class="refresh-btn" id="refreshBtn" title="Actualizar datos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- SECCIÓN: RESUMEN ─────────────────────────────────────────────────────── -->
+    <section class="section active" id="sectionOverview">
+
+      <!-- KPI CARDS -->
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card skeleton"></div>
+        <div class="kpi-card skeleton"></div>
+        <div class="kpi-card skeleton"></div>
+        <div class="kpi-card skeleton"></div>
+        <div class="kpi-card skeleton"></div>
+        <div class="kpi-card skeleton"></div>
+      </div>
+
+      <!-- CHARTS ROW 1 -->
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>Ingresos diarios <span class="badge">Últimos 30 días</span></h3>
+          </div>
+          <div class="chart-wrapper"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>Pedidos diarios <span class="badge">Últimos 30 días</span></h3>
+          </div>
+          <div class="chart-wrapper"><canvas id="ordersChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 2 -->
+      <div class="chart-grid-3">
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Ventas por estilo</h3></div>
+          <div class="chart-wrapper chart-wrapper--sm"><canvas id="styleChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Métodos de pago</h3></div>
+          <div class="chart-wrapper chart-wrapper--sm"><canvas id="paymentChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Top tipos de entrada</h3></div>
+          <div class="chart-wrapper chart-wrapper--sm"><canvas id="ticketTypeChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- CHART ROW 3 -->
+      <div class="chart-grid-1">
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Top eventos por ingresos</h3></div>
+          <div class="chart-wrapper chart-wrapper--md"><canvas id="topEventsChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Pedidos recientes</h3>
+          <a href="#" class="link-btn" data-section="orders">Ver todos →</a>
+        </div>
+        <div class="table-wrapper" id="recentOrdersTable">
+          <div class="table-loading">Cargando…</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECCIÓN: PEDIDOS ─────────────────────────────────────────────────────── -->
+    <section class="section" id="sectionOrders">
+      <div class="orders-toolbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="ordersSearch" placeholder="Buscar por nombre, email o código…" />
+        </div>
+        <select id="ordersStyleFilter" class="select-filter">
+          <option value="">Todos los estilos</option>
+          <option value="salsa">Salsa</option>
+          <option value="bachata">Bachata</option>
+          <option value="tango">Tango</option>
+          <option value="flamenco">Flamenco</option>
+          <option value="swing">Swing</option>
+          <option value="kizomba">Kizomba</option>
+        </select>
+        <span class="orders-count" id="ordersCount">— pedidos</span>
+      </div>
+
+      <div class="chart-card">
+        <div class="table-wrapper" id="allOrdersTable">
+          <div class="table-loading">Cargando…</div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+      <!-- Modal detalle de pedido -->
+      <div class="detail-overlay hidden" id="detailOverlay">
+        <div class="detail-modal" id="detailModal">
+          <button class="detail-close" id="detailClose">&times;</button>
+          <h2>Detalle del pedido</h2>
+          <div id="detailContent"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: ANÁLISIS ────────────────────────────────────────────────────── -->
+    <section class="section" id="sectionCharts">
+
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Ingresos por estilo de baile</h3></div>
+          <div class="chart-wrapper"><canvas id="styleRevenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Entradas vendidas por estilo</h3></div>
+          <div class="chart-wrapper"><canvas id="styleTicketsChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Distribución de métodos de pago</h3></div>
+          <div class="chart-wrapper chart-wrapper--sm"><canvas id="paymentDonutChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Tipos de entrada más vendidos</h3></div>
+          <div class="chart-wrapper chart-wrapper--sm"><canvas id="topTicketsChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-grid-1">
+        <div class="chart-card">
+          <div class="chart-card-header"><h3>Evolución acumulada de ingresos</h3></div>
+          <div class="chart-wrapper chart-wrapper--md"><canvas id="cumulativeChart"></canvas></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
