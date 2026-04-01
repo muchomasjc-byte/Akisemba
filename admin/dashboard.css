@@ -320,6 +320,46 @@ tbody td { padding: 11px 12px; vertical-align: middle; }
   transition: all var(--transition);
 }
 .action-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.action-btn.edit  { border-color: #3b82f6; color: #3b82f6; }
+.action-btn.edit:hover  { background: #3b82f6; color: #fff; }
+.action-btn.delete      { border-color: #ef4444; color: #ef4444; }
+.action-btn.delete:hover{ background: #ef4444; color: #fff; }
+
+/* ── Edit modal ── */
+.edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-field input,
+.form-field select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.form-field input:focus,
+.form-field select:focus { border-color: var(--primary); }
+.edit-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.btn-cancel {
+  background: none; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 18px; color: var(--text-muted); font-size: 0.88rem; cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+.btn-save {
+  background: var(--primary); border: none; border-radius: var(--radius-sm);
+  padding: 8px 20px; color: #fff; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  transition: background var(--transition);
+}
+.btn-save:hover { background: var(--primary-dark); }
 
 /* =========================================
    ORDERS TOOLBAR

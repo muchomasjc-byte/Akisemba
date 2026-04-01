@@ -92,6 +92,19 @@ router.get('/:id', (req, res) => {
   return res.json({ order, items });
 });
 
+// ─── PUT /api/orders/:id ─────────────────────────────────────────────────────
+router.put('/:id', (req, res) => {
+  const { firstName, lastName, email, phone, paymentMethod } = req.body;
+  if (!firstName || !lastName || !email) {
+    return res.status(400).json({ error: 'Nombre, apellidos y email son obligatorios.' });
+  }
+  const { changes } = db.prepare(`
+    UPDATE orders SET first_name=?, last_name=?, email=?, phone=?, payment_method=? WHERE id=?
+  `).run(firstName, lastName, email, phone || '', paymentMethod || 'card', req.params.id);
+  if (changes === 0) return res.status(404).json({ error: 'Pedido no encontrado.' });
+  return res.json({ success: true });
+});
+
 // ─── DELETE /api/orders/:id ───────────────────────────────────────────────────
 router.delete('/:id', (req, res) => {
   const { changes } = db.prepare('DELETE FROM orders WHERE id = ?').run(req.params.id);

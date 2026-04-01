@@ -376,14 +376,26 @@ function renderOrdersTable(rows) {
             <td style="text-align:center">${r.ticket_count}</td>
             <td class="amount">${fmt(r.total)}</td>
             <td style="color:var(--text-muted);white-space:nowrap;font-size:0.78rem">${fmtDate(r.created_at)}</td>
-            <td><button class="action-btn">Ver</button></td>
+            <td class="row-actions">
+              <button class="action-btn edit"   data-id="${r.id}" title="Editar">✏️</button>
+              <button class="action-btn delete" data-id="${r.id}" title="Eliminar">🗑️</button>
+            </td>
           </tr>
         `).join('')}
       </tbody>
     </table>`;
 
   el.querySelectorAll('tbody tr').forEach(tr => {
-    tr.addEventListener('click', () => openOrderDetail(tr.dataset.id));
+    tr.addEventListener('click', e => {
+      if (e.target.closest('.row-actions')) return;
+      openOrderDetail(tr.dataset.id);
+    });
+  });
+  el.querySelectorAll('.action-btn.edit').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); openEditModal(btn.dataset.id); });
+  });
+  el.querySelectorAll('.action-btn.delete').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete(btn.dataset.id); });
   });
 }
 
@@ -587,6 +599,62 @@ async function loadCharts() {
 }
 
 /* =========================================
+   EDITAR PEDIDO
+   ========================================= */
+async function openEditModal(id) {
+  try {
+    const { order } = await apiFetch(`/orders/${id}`);
+    document.getElementById('editOrderId').value    = order.id;
+    document.getElementById('editFirstName').value  = order.first_name;
+    document.getElementById('editLastName').value   = order.last_name;
+    document.getElementById('editEmail').value      = order.email;
+    document.getElementById('editPhone').value      = order.phone || '';
+    document.getElementById('editPayment').value    = order.payment_method;
+    document.getElementById('editOverlay').classList.remove('hidden');
+  } catch(e) { console.error(e); }
+}
+
+async function saveEdit(e) {
+  e.preventDefault();
+  const id = document.getElementById('editOrderId').value;
+  const body = {
+    firstName:     document.getElementById('editFirstName').value.trim(),
+    lastName:      document.getElementById('editLastName').value.trim(),
+    email:         document.getElementById('editEmail').value.trim(),
+    phone:         document.getElementById('editPhone').value.trim(),
+    paymentMethod: document.getElementById('editPayment').value,
+  };
+  try {
+    const res = await fetch(`${API}/orders/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error();
+    document.getElementById('editOverlay').classList.add('hidden');
+    loadOrders();
+    showAdminToast('Pedido actualizado', `${body.firstName} ${body.lastName}`, '#3b82f6');
+  } catch(e) {
+    showAdminToast('Error', 'No se pudo guardar el cambio.', '#ef4444');
+  }
+}
+
+/* =========================================
+   ELIMINAR PEDIDO
+   ========================================= */
+async function confirmDelete(id) {
+  if (!confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')) return;
+  try {
+    const res = await fetch(`${API}/orders/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    loadOrders();
+    showAdminToast('Pedido eliminado', `ID #${id}`, '#ef4444');
+  } catch(e) {
+    showAdminToast('Error', 'No se pudo eliminar el pedido.', '#ef4444');
+  }
+}
+
+/* =========================================
    NOTIFICACIONES TOAST (admin)
    ========================================= */
 function showAdminToast(title, msg, color = '#22c55e') {
@@ -759,6 +827,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cerrar modal detalle
   document.getElementById('detailClose').addEventListener('click',  () => document.getElementById('detailOverlay').classList.add('hidden'));
   document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target === document.getElementById('detailOverlay')) document.getElementById('detailOverlay').classList.add('hidden'); });
+
+  // Modal editar pedido
+  document.getElementById('editClose').addEventListener('click',  () => document.getElementById('editOverlay').classList.add('hidden'));
+  document.getElementById('editCancel').addEventListener('click', () => document.getElementById('editOverlay').classList.add('hidden'));
+  document.getElementById('editOverlay').addEventListener('click', e => { if (e.target === document.getElementById('editOverlay')) document.getElementById('editOverlay').classList.add('hidden'); });
+  document.getElementById('editForm').addEventListener('submit', saveEdit);
 
   // Carga inicial
   navigate('overview');

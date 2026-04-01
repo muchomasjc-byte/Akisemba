@@ -155,6 +155,47 @@
           <div id="detailContent"></div>
         </div>
       </div>
+
+      <!-- Modal editar pedido -->
+      <div class="detail-overlay hidden" id="editOverlay">
+        <div class="detail-modal" id="editModal">
+          <button class="detail-close" id="editClose">&times;</button>
+          <h2>Editar pedido</h2>
+          <form id="editForm">
+            <input type="hidden" id="editOrderId">
+            <div class="edit-grid">
+              <div class="form-field">
+                <label>Nombre</label>
+                <input type="text" id="editFirstName" required>
+              </div>
+              <div class="form-field">
+                <label>Apellidos</label>
+                <input type="text" id="editLastName" required>
+              </div>
+              <div class="form-field">
+                <label>Email</label>
+                <input type="email" id="editEmail" required>
+              </div>
+              <div class="form-field">
+                <label>Teléfono</label>
+                <input type="text" id="editPhone">
+              </div>
+              <div class="form-field">
+                <label>Método de pago</label>
+                <select id="editPayment">
+                  <option value="card">Tarjeta</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="bizum">Bizum</option>
+                </select>
+              </div>
+            </div>
+            <div class="edit-actions">
+              <button type="button" class="btn-cancel" id="editCancel">Cancelar</button>
+              <button type="submit" class="btn-save">Guardar cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </section>
 
     <!-- SECCIÓN: ANÁLISIS ────────────────────────────────────────────────────── -->
