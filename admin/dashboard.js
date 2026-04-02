@@ -713,12 +713,15 @@ async function saveEvent(e) {
     const url    = id ? `${API}/manage-events/${id}` : `${API}/manage-events`;
     const method = id ? 'PUT' : 'POST';
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (!res.ok) throw new Error();
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
     document.getElementById('eventOverlay').classList.add('hidden');
     loadEventsList();
     showAdminToast(id ? 'Evento actualizado' : 'Evento creado', body.title, '#22c55e');
   } catch(e) {
-    showAdminToast('Error', 'No se pudo guardar el evento.', '#ef4444');
+    showAdminToast('Error', e.message || 'No se pudo guardar el evento.', '#ef4444');
   }
 }
 
@@ -766,12 +769,15 @@ async function saveEdit(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error();
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
     document.getElementById('editOverlay').classList.add('hidden');
     loadOrders();
     showAdminToast('Pedido actualizado', `${body.firstName} ${body.lastName}`, '#3b82f6');
   } catch(e) {
-    showAdminToast('Error', 'No se pudo guardar el cambio.', '#ef4444');
+    showAdminToast('Error', e.message || 'No se pudo guardar el cambio.', '#ef4444');
   }
 }
 
