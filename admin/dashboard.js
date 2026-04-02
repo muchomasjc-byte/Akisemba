@@ -844,6 +844,15 @@ function showAdminToast(title, msg, color = '#22c55e') {
 }
 
 /* =========================================
+   MODAL GUARD — no recargar si hay modal abierto
+   ========================================= */
+function isModalOpen() {
+  return ['editOverlay', 'detailOverlay', 'eventOverlay'].some(
+    id => !document.getElementById(id).classList.contains('hidden')
+  );
+}
+
+/* =========================================
    SSE — Actualizaciones en tiempo real
    ========================================= */
 function connectSSE() {
@@ -865,9 +874,11 @@ function connectSSE() {
         `${data.firstName} ${data.lastName} · ${parseFloat(data.total).toFixed(2).replace('.', ',')} €`
       );
 
-      // Actualizar la sección activa automáticamente
-      SECTIONS[currentSection].load();
-      document.getElementById('lastUpdate').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-ES');
+      // Actualizar la sección activa automáticamente (solo si no hay modal abierto)
+      if (!isModalOpen()) {
+        SECTIONS[currentSection].load();
+        document.getElementById('lastUpdate').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-ES');
+      }
 
       // Hacer parpadear el botón de refresh
       const btn = document.getElementById('refreshBtn');
@@ -992,9 +1003,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Conectar SSE para actualizaciones en tiempo real
   connectSSE();
 
-  // Auto-refresh de respaldo cada 30 segundos
+  // Auto-refresh de respaldo cada 30 segundos (solo si no hay modal abierto)
   setInterval(() => {
-    SECTIONS[currentSection].load();
-    document.getElementById('lastUpdate').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-ES');
+    if (!isModalOpen()) {
+      SECTIONS[currentSection].load();
+      document.getElementById('lastUpdate').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-ES');
+    }
   }, 30000);
 });
