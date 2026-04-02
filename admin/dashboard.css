@@ -362,6 +362,74 @@ tbody td { padding: 11px 12px; vertical-align: middle; }
 .btn-save:hover { background: var(--primary-dark); }
 
 /* =========================================
+   EVENTOS
+   ========================================= */
+.btn-add-event {
+  background: var(--primary); border: none; border-radius: var(--radius-sm);
+  padding: 8px 16px; color: #fff; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: background var(--transition);
+}
+.btn-add-event:hover { background: var(--primary-dark); }
+
+.event-modal { max-width: 680px; max-height: 90vh; overflow-y: auto; }
+.event-modal textarea {
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 12px; color: var(--text); font-size: 0.88rem; outline: none;
+  width: 100%; resize: vertical; font-family: inherit;
+  transition: border-color var(--transition);
+}
+.event-modal textarea:focus { border-color: var(--primary); }
+
+.section-divider {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted);
+  border-bottom: 1px solid var(--border); padding-bottom: 6px;
+  margin: 18px 0 12px;
+}
+
+.ticket-type-row {
+  display: grid; grid-template-columns: 1fr 1.5fr 80px 32px;
+  gap: 8px; align-items: center; margin-bottom: 8px;
+}
+.ticket-type-row input {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 7px 10px;
+  color: var(--text); font-size: 0.84rem; outline: none; width: 100%;
+}
+.ticket-type-row input:focus { border-color: var(--primary); }
+.btn-remove-ticket {
+  background: none; border: 1px solid #ef4444; border-radius: var(--radius-sm);
+  color: #ef4444; cursor: pointer; font-size: 0.85rem; padding: 4px 8px;
+  transition: all var(--transition);
+}
+.btn-remove-ticket:hover { background: #ef4444; color: #fff; }
+.btn-add-ticket {
+  background: none; border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 7px 14px; color: var(--text-muted); font-size: 0.82rem;
+  cursor: pointer; transition: all var(--transition); margin-bottom: 16px; width: 100%;
+}
+.btn-add-ticket:hover { border-color: var(--primary); color: var(--primary); }
+
+.events-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px; margin-top: 16px;
+}
+.event-admin-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; position: relative;
+}
+.event-admin-card .ev-style-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius) var(--radius) 0 0;
+}
+.event-admin-card .ev-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.event-admin-card .ev-emoji { font-size: 2rem; line-height: 1; }
+.event-admin-card .ev-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+.event-admin-card .ev-meta { font-size: 0.75rem; color: var(--text-muted); }
+.event-admin-card .ev-tickets { font-size: 0.78rem; color: var(--text-muted); margin: 8px 0; border-top: 1px solid var(--border); padding-top: 8px; }
+.event-admin-card .ev-actions { display: flex; gap: 8px; margin-top: 10px; }
+.badge-sold-out { background: #ef444422; border: 1px solid #ef4444; color: #ef4444; font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+
+/* =========================================
    ORDERS TOOLBAR
    ========================================= */
 .orders-toolbar {

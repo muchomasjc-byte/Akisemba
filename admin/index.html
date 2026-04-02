@@ -24,6 +24,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         Pedidos
       </a>
+      <a href="#" class="nav-item" data-section="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+        Eventos
+      </a>
       <a href="#" class="nav-item" data-section="charts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Análisis
@@ -192,6 +196,80 @@
             <div class="edit-actions">
               <button type="button" class="btn-cancel" id="editCancel">Cancelar</button>
               <button type="submit" class="btn-save">Guardar cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: EVENTOS ─────────────────────────────────────────────────────── -->
+    <section class="section" id="sectionEvents">
+      <div class="orders-toolbar">
+        <span id="eventsCount" style="color:var(--text-muted);font-size:0.85rem"></span>
+        <button id="addEventBtn" class="btn-add-event">+ Nuevo evento</button>
+      </div>
+      <div id="eventsTable"></div>
+
+      <!-- Modal evento -->
+      <div class="detail-overlay hidden" id="eventOverlay">
+        <div class="detail-modal event-modal" id="eventModal">
+          <button class="detail-close" id="eventModalClose">&times;</button>
+          <h2 id="eventModalTitle">Nuevo evento</h2>
+          <form id="eventForm">
+            <input type="hidden" id="evId">
+            <div class="edit-grid">
+              <div class="form-field">
+                <label>Título</label>
+                <input type="text" id="evTitle" required placeholder="Nombre del evento">
+              </div>
+              <div class="form-field">
+                <label>Estilo de baile</label>
+                <select id="evStyle">
+                  <option value="salsa">Salsa</option>
+                  <option value="bachata">Bachata</option>
+                  <option value="tango">Tango</option>
+                  <option value="flamenco">Flamenco</option>
+                  <option value="swing">Swing</option>
+                  <option value="kizomba">Kizomba</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Emoji</label>
+                <input type="text" id="evEmoji" placeholder="💃" maxlength="4">
+              </div>
+              <div class="form-field">
+                <label>Fecha (YYYY-MM-DD)</label>
+                <input type="date" id="evDate" required>
+              </div>
+              <div class="form-field" style="grid-column:1/-1">
+                <label>Fecha visible (texto libre)</label>
+                <input type="text" id="evDateDisplay" placeholder="18 Abr 2026 · 21:00">
+              </div>
+              <div class="form-field" style="grid-column:1/-1">
+                <label>Lugar</label>
+                <input type="text" id="evLocation" required placeholder="📍 Palacio de los Deportes, Madrid">
+              </div>
+              <div class="form-field" style="grid-column:1/-1">
+                <label>Artista / DJ</label>
+                <input type="text" id="evArtist" placeholder="🎵 DJ Nombre">
+              </div>
+              <div class="form-field" style="grid-column:1/-1">
+                <label>Descripción</label>
+                <textarea id="evDesc" rows="3" placeholder="Descripción del evento…"></textarea>
+              </div>
+              <div class="form-field" style="display:flex;align-items:center;gap:10px;grid-column:1/-1">
+                <input type="checkbox" id="evSoldOut" style="width:auto">
+                <label for="evSoldOut" style="text-transform:none;letter-spacing:0;font-size:0.88rem">Agotado</label>
+              </div>
+            </div>
+
+            <div class="section-divider">Tipos de entrada</div>
+            <div id="ticketTypesList"></div>
+            <button type="button" id="addTicketTypeBtn" class="btn-add-ticket">+ Añadir tipo de entrada</button>
+
+            <div class="edit-actions">
+              <button type="button" class="btn-cancel" id="eventFormCancel">Cancelar</button>
+              <button type="submit" class="btn-save">Guardar evento</button>
             </div>
           </form>
         </div>

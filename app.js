@@ -34,9 +34,36 @@ const EMAILJS_READY = (
 );
 
 /* =========================================
-   DATOS DE EVENTOS
+   DATOS DE EVENTOS (cargados desde el backend)
    ========================================= */
-const EVENTS = [
+let EVENTS = [];
+
+async function loadEventsFromAPI() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/manage-events`);
+    if (res.ok) {
+      const data = await res.json();
+      EVENTS = data.map(ev => ({
+        id:          ev.id,
+        title:       ev.title,
+        style:       ev.style,
+        emoji:       ev.emoji,
+        date:        ev.date,
+        dateDisplay: ev.date_display,
+        location:    ev.location,
+        artist:      ev.artist,
+        desc:        ev.description,
+        soldOut:     !!ev.sold_out,
+        tickets:     ev.tickets.map(t => ({ name: t.name, desc: t.desc, price: t.price }))
+      }));
+    }
+  } catch (e) {
+    console.warn('[RitmoBoleto] No se pudieron cargar eventos del backend:', e.message);
+  }
+}
+
+// Datos de respaldo por si el backend no está disponible
+const EVENTS_FALLBACK = [
   {
     id: 1,
     title: "Salsa World Congress Madrid",
@@ -658,14 +685,17 @@ function injectEmailJSBanner() {
 /* =========================================
    INICIALIZACIÓN
    ========================================= */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Inicializar EmailJS si está configurado
   if (EMAILJS_READY) {
     emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
   } else {
-    // Mostrar banner de configuración en el checkout
     injectEmailJSBanner();
   }
+
+  // Cargar eventos desde el backend (con fallback si no está disponible)
+  await loadEventsFromAPI();
+  if (EVENTS.length === 0) EVENTS = EVENTS_FALLBACK;
 
   renderEvents();
   renderCart();

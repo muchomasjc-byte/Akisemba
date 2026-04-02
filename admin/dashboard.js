@@ -599,6 +599,142 @@ async function loadCharts() {
 }
 
 /* =========================================
+   SECCIÓN: EVENTOS
+   ========================================= */
+const STYLE_COLORS_HEX = { salsa:'#f87171', bachata:'#c084fc', tango:'#fbbf24', flamenco:'#fb923c', swing:'#4ade80', kizomba:'#2dd4bf' };
+
+async function loadEventsList() {
+  const el = document.getElementById('eventsTable');
+  el.innerHTML = '<div class="table-loading">Cargando…</div>';
+  try {
+    const events = await apiFetch('/manage-events/all');
+    document.getElementById('eventsCount').textContent = `${events.length} evento${events.length !== 1 ? 's' : ''}`;
+    renderEventsGrid(events);
+  } catch(e) {
+    el.innerHTML = '<div class="table-loading" style="color:#ef4444">❌ No se pudieron cargar los eventos.</div>';
+  }
+}
+
+function renderEventsGrid(events) {
+  const el = document.getElementById('eventsTable');
+  if (!events.length) { el.innerHTML = '<div class="table-loading">No hay eventos.</div>'; return; }
+  el.innerHTML = `<div class="events-grid">${events.map(ev => `
+    <div class="event-admin-card">
+      <div class="ev-style-bar" style="background:${STYLE_COLORS_HEX[ev.style]||'#888'}"></div>
+      <div class="ev-header">
+        <div class="ev-emoji">${ev.emoji}</div>
+        <div>
+          <div class="ev-title">${ev.title} ${ev.sold_out ? '<span class="badge-sold-out">AGOTADO</span>' : ''}</div>
+          <div class="ev-meta">📅 ${ev.date_display}</div>
+          <div class="ev-meta">${ev.location}</div>
+        </div>
+      </div>
+      <div class="ev-tickets">${ev.tickets.map(t => `${t.name}: <strong>${parseFloat(t.price).toFixed(2)} €</strong>`).join(' · ')}</div>
+      <div class="ev-actions">
+        <button class="action-btn edit" data-id="${ev.id}">✏️ Editar</button>
+        <button class="action-btn delete" data-id="${ev.id}">🗑️ Eliminar</button>
+      </div>
+    </div>
+  `).join('')}</div>`;
+
+  el.querySelectorAll('.action-btn.edit').forEach(btn => {
+    btn.addEventListener('click', () => openEventModal(btn.dataset.id));
+  });
+  el.querySelectorAll('.action-btn.delete').forEach(btn => {
+    btn.addEventListener('click', () => confirmDeleteEvent(btn.dataset.id));
+  });
+}
+
+function openEventModal(id = null) {
+  const form = document.getElementById('eventForm');
+  form.reset();
+  document.getElementById('ticketTypesList').innerHTML = '';
+  document.getElementById('evId').value = '';
+  document.getElementById('eventModalTitle').textContent = id ? 'Editar evento' : 'Nuevo evento';
+
+  if (id) {
+    apiFetch(`/manage-events/${id}`).then(ev => {
+      document.getElementById('evId').value        = ev.id;
+      document.getElementById('evTitle').value     = ev.title;
+      document.getElementById('evStyle').value     = ev.style;
+      document.getElementById('evEmoji').value     = ev.emoji;
+      document.getElementById('evDate').value      = ev.date;
+      document.getElementById('evDateDisplay').value = ev.date_display;
+      document.getElementById('evLocation').value  = ev.location;
+      document.getElementById('evArtist').value    = ev.artist;
+      document.getElementById('evDesc').value      = ev.description;
+      document.getElementById('evSoldOut').checked = !!ev.sold_out;
+      ev.tickets.forEach(t => addTicketTypeRow(t.name, t.desc, t.price));
+    });
+  } else {
+    addTicketTypeRow();
+  }
+  document.getElementById('eventOverlay').classList.remove('hidden');
+}
+
+function addTicketTypeRow(name = '', desc = '', price = '') {
+  const row = document.createElement('div');
+  row.className = 'ticket-type-row';
+  row.innerHTML = `
+    <input type="text"   placeholder="Nombre"      value="${name}"  class="tk-name">
+    <input type="text"   placeholder="Descripción" value="${desc}"  class="tk-desc">
+    <input type="number" placeholder="Precio €"    value="${price}" class="tk-price" min="0" step="0.01">
+    <button type="button" class="btn-remove-ticket">✕</button>
+  `;
+  row.querySelector('.btn-remove-ticket').addEventListener('click', () => row.remove());
+  document.getElementById('ticketTypesList').appendChild(row);
+}
+
+async function saveEvent(e) {
+  e.preventDefault();
+  const id = document.getElementById('evId').value;
+  const tickets = Array.from(document.querySelectorAll('.ticket-type-row')).map(row => ({
+    name:  row.querySelector('.tk-name').value.trim(),
+    desc:  row.querySelector('.tk-desc').value.trim(),
+    price: parseFloat(row.querySelector('.tk-price').value) || 0,
+  })).filter(t => t.name);
+
+  if (!tickets.length) return showAdminToast('Error', 'Añade al menos un tipo de entrada.', '#ef4444');
+
+  const body = {
+    title:       document.getElementById('evTitle').value.trim(),
+    style:       document.getElementById('evStyle').value,
+    emoji:       document.getElementById('evEmoji').value.trim() || '🎵',
+    date:        document.getElementById('evDate').value,
+    dateDisplay: document.getElementById('evDateDisplay').value.trim(),
+    location:    document.getElementById('evLocation').value.trim(),
+    artist:      document.getElementById('evArtist').value.trim(),
+    desc:        document.getElementById('evDesc').value.trim(),
+    soldOut:     document.getElementById('evSoldOut').checked,
+    tickets,
+  };
+
+  try {
+    const url    = id ? `${API}/manage-events/${id}` : `${API}/manage-events`;
+    const method = id ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error();
+    document.getElementById('eventOverlay').classList.add('hidden');
+    loadEventsList();
+    showAdminToast(id ? 'Evento actualizado' : 'Evento creado', body.title, '#22c55e');
+  } catch(e) {
+    showAdminToast('Error', 'No se pudo guardar el evento.', '#ef4444');
+  }
+}
+
+async function confirmDeleteEvent(id) {
+  if (!confirm('¿Eliminar este evento? Se eliminará permanentemente.')) return;
+  try {
+    const res = await fetch(`${API}/manage-events/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    loadEventsList();
+    showAdminToast('Evento eliminado', `ID #${id}`, '#ef4444');
+  } catch(e) {
+    showAdminToast('Error', 'No se pudo eliminar el evento.', '#ef4444');
+  }
+}
+
+/* =========================================
    EDITAR PEDIDO
    ========================================= */
 async function openEditModal(id) {
@@ -753,9 +889,10 @@ function connectSSE() {
    NAVEGACIÓN
    ========================================= */
 const SECTIONS = {
-  overview: { el: 'sectionOverview', title: 'Resumen',  sub: 'Visión general de ventas',   load: loadOverview },
-  orders:   { el: 'sectionOrders',   title: 'Pedidos',  sub: 'Gestión de todas las compras', load: loadOrders  },
-  charts:   { el: 'sectionCharts',   title: 'Análisis', sub: 'Gráficas detalladas',          load: loadCharts  },
+  overview: { el: 'sectionOverview', title: 'Resumen',  sub: 'Visión general de ventas',      load: loadOverview    },
+  orders:   { el: 'sectionOrders',   title: 'Pedidos',  sub: 'Gestión de todas las compras',  load: loadOrders      },
+  events:   { el: 'sectionEvents',   title: 'Eventos',  sub: 'Gestión de eventos y precios',  load: loadEventsList  },
+  charts:   { el: 'sectionCharts',   title: 'Análisis', sub: 'Gráficas detalladas',           load: loadCharts      },
 };
 let currentSection = 'overview';
 
@@ -827,6 +964,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cerrar modal detalle
   document.getElementById('detailClose').addEventListener('click',  () => document.getElementById('detailOverlay').classList.add('hidden'));
   document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target === document.getElementById('detailOverlay')) document.getElementById('detailOverlay').classList.add('hidden'); });
+
+  // Modal eventos
+  document.getElementById('eventModalClose').addEventListener('click', () => document.getElementById('eventOverlay').classList.add('hidden'));
+  document.getElementById('eventFormCancel').addEventListener('click',  () => document.getElementById('eventOverlay').classList.add('hidden'));
+  document.getElementById('eventOverlay').addEventListener('click', e => { if (e.target === document.getElementById('eventOverlay')) document.getElementById('eventOverlay').classList.add('hidden'); });
+  document.getElementById('addEventBtn').addEventListener('click', () => openEventModal());
+  document.getElementById('addTicketTypeBtn').addEventListener('click', () => addTicketTypeRow());
+  document.getElementById('eventForm').addEventListener('submit', saveEvent);
 
   // Modal editar pedido
   document.getElementById('editClose').addEventListener('click',  () => document.getElementById('editOverlay').classList.add('hidden'));

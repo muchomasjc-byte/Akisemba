@@ -36,8 +36,9 @@ async function start() {
   });
 
   // ─── Rutas API ─────────────────────────────────────────────────────────────
-  app.use('/api/orders',    require('./routes/orders'));
-  app.use('/api/dashboard', require('./routes/dashboard'));
+  app.use('/api/orders',         require('./routes/orders'));
+  app.use('/api/dashboard',      require('./routes/dashboard'));
+  app.use('/api/manage-events',  require('./routes/manage-events'));
   app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 
   // ─── Arrancar servidor ─────────────────────────────────────────────────────
