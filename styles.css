@@ -641,7 +641,8 @@ img { max-width: 100%; }
 .cart-panel {
   position: fixed;
   top: 0; right: 0;
-  height: 100%;
+  height: 100vh; /* fallback navegadores antiguos */
+  height: 100dvh;
   width: 380px;
   max-width: 95vw;
   background: var(--surface);
@@ -649,6 +650,7 @@ img { max-width: 100%; }
   z-index: 151;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   animation: slideIn 0.3s ease;
 }
 
