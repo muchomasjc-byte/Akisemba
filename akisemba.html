@@ -113,6 +113,10 @@
     .btn-action.cancel-btn { border-color: rgba(255,255,255,0.12); color: rgba(240,232,208,0.45); }
     .btn-action.confirm-yes { background: #e05252; border-color: #e05252; color: #fff; }
     .btn-action.confirm-no { border-color: rgba(255,255,255,0.12); color: rgba(240,232,208,0.45); }
+    .btn-wa { background: none; border: 1px solid rgba(37,211,102,0.28); color: rgba(37,211,102,0.65); cursor: pointer; font-size: 0.8rem; transition: all 0.2s; padding: 0.22rem 0.5rem; border-radius: 2px; text-decoration: none; display: inline-flex; align-items: center; line-height: 1; }
+    .btn-wa:hover { color: #25d366; border-color: #25d366; background: rgba(37,211,102,0.09); }
+    .td-contact a { color: inherit; text-decoration: none; }
+    .td-contact a:hover { color: rgba(37,211,102,0.9); }
 
     .inline-input { background: rgba(255,255,255,0.07); border: 1px solid rgba(212,175,55,0.3); border-radius: 2px; padding: 0.28rem 0.45rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 100%; margin-bottom: 0.25rem; display: block; }
     .inline-input:last-child { margin-bottom: 0; }
@@ -132,7 +136,7 @@
     @media (max-width: 720px) {
       .stats-grid { grid-template-columns: repeat(3, 1fr); }
       .form-row { grid-template-columns: 1fr; }
-      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 105px 58px 90px; }
+      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 105px 58px 115px; }
       .col-contacto, .col-precio { display: none; }
       .search-input { width: 110px; }
     }
@@ -297,6 +301,8 @@
         const isEdit = editId === t.id;
         const isConfirm = confirmId === t.id;
 
+        const waUrl = whatsappUrl(t.contacto);
+
         const nombreCell = isEdit
           ? `<input class="inline-input" data-field="nombre" value="${esc(t.nombre)}" placeholder="Nombre">
              <input class="inline-input" data-field="apellidos" value="${esc(t.apellidos)}" placeholder="Apellidos">`
@@ -304,7 +310,11 @@
 
         const contactoCell = isEdit
           ? `<input class="inline-input" data-field="contacto" value="${esc(t.contacto)}" placeholder="Contacto">`
-          : (t.contacto ? esc(t.contacto) : '—');
+          : (t.contacto
+              ? (waUrl
+                  ? `<a href="${waUrl}" target="_blank" rel="noopener noreferrer">${esc(t.contacto)}</a>`
+                  : esc(t.contacto))
+              : '—');
 
         const tipoCell = isEdit
           ? `<select class="inline-select" data-field="tipo">
@@ -336,6 +346,7 @@
           </div>`;
         } else {
           accionesCell = `<div class="actions">
+            ${waUrl ? `<a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener noreferrer" title="Abrir WhatsApp">💬</a>` : ''}
             <button class="btn-action edit" data-action="edit" data-id="${t.id}">✎ Editar</button>
             <button class="btn-action delete" data-action="delete" data-id="${t.id}">✕</button>
           </div>`;
@@ -382,6 +393,28 @@
 
     function esc(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // WhatsApp helpers
+    function isPhone(str) {
+      const cleaned = str.replace(/[\s\-\(\)\.]/g, '');
+      return /^[\+\d]{7,15}$/.test(cleaned);
+    }
+    function normalizePhone(str) {
+      let num = str.replace(/[\s\-\(\)\.]/g, '');
+      if (num.startsWith('+')) num = num.slice(1);
+      // Spanish mobile/landline without country code (9 digits starting with 6/7/8/9)
+      if (/^[6789]\d{8}$/.test(num)) num = '34' + num;
+      return num;
+    }
+    function whatsappUrl(contacto) {
+      if (!contacto) return null;
+      // Support entries like "600 123 456 · email@..." — scan each token
+      const tokens = contacto.split(/[\s·,;|\/]+/);
+      for (const tok of tokens) {
+        if (isPhone(tok)) return 'https://wa.me/' + normalizePhone(tok);
+      }
+      return null;
     }
 
     // Get edit data from DOM
