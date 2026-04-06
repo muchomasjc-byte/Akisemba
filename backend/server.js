@@ -16,6 +16,9 @@ async function start() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Servir el frontend principal (index.html, app.js, styles.css…)
+  app.use(express.static(path.join(__dirname, '..')));
+
   // Servir el panel de administración
   app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 
