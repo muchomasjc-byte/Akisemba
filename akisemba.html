@@ -77,7 +77,8 @@
     .filter-btn.active { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.08); }
     .filter-btn:hover { border-color: rgba(212,175,55,0.45); color: rgba(240,232,208,0.75); }
     .filter-sep { width: 1px; height: 14px; background: rgba(212,175,55,0.2); margin: 0 0.2rem; flex-shrink: 0; align-self: center; }
-    .search-input { margin-left: auto; background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.15); border-radius: 2px; padding: 0.28rem 0.75rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 160px; transition: border-color 0.2s; }
+    .filters-right { margin-left: auto; display: flex; gap: 0.4rem; align-items: center; }
+    .search-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.15); border-radius: 2px; padding: 0.28rem 0.75rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 160px; transition: border-color 0.2s; }
     .search-input:focus { border-color: rgba(212,175,55,0.4); }
     .search-input::placeholder { color: rgba(240,232,208,0.2); }
 
@@ -138,7 +139,41 @@
       .form-row { grid-template-columns: 1fr; }
       .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 105px 58px 115px; }
       .col-contacto, .col-precio { display: none; }
-      .search-input { width: 110px; }
+      .search-input { width: 100px; }
+      .btn-print { display: none; }
+    }
+
+    .btn-print { padding: 0.28rem 0.85rem; border: 1px solid rgba(212,175,55,0.35); background: transparent; color: rgba(212,175,55,0.7); font-family: 'Jost', sans-serif; font-size: 0.63rem; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s; margin-left: auto; }
+    .btn-print:hover { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.08); }
+
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+      .bg-pattern, .form-section, .filters, .btn-print, .toast, .actions, .header-eyebrow { display: none !important; }
+      .header { padding: 0.5rem 0 0.75rem; }
+      .header h1 { font-size: 2rem; color: #111 !important; text-shadow: none !important; }
+      .header-sub { color: #555 !important; }
+      .header::after { background: #111 !important; }
+      .content { max-width: 100%; padding: 0.5rem 1rem; }
+      .stats-grid { grid-template-columns: repeat(6, 1fr); gap: 0.4rem; margin-bottom: 1rem; }
+      .stat-card { border: 1px solid #ccc !important; background: #f9f9f9 !important; padding: 0.5rem; }
+      .stat-card::before { display: none; }
+      .stat-value { color: #111 !important; font-size: 1.2rem; }
+      .stat-value.green { color: #2a7a3b !important; }
+      .stat-value.red { color: #a33 !important; }
+      .stat-label { color: #555 !important; }
+      .table-section { border: 1px solid #ccc !important; background: #fff !important; }
+      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 1fr 110px 60px 70px !important; border-bottom: 1px solid #ddd !important; padding: 0.4rem 0.6rem; }
+      .col-contacto, .col-precio { display: block !important; }
+      .th { color: #555 !important; }
+      .td, .td-name, .td-contact { color: #111 !important; }
+      .td-num { color: #888 !important; }
+      .td-price { color: #111 !important; }
+      .badge-anticipada { background: #fdf3d0 !important; border-color: #c9a227 !important; color: #7a5c00 !important; }
+      .badge-puerta { background: #f0f0f0 !important; border-color: #bbb !important; color: #444 !important; }
+      .pagado-badge.si { color: #2a7a3b !important; border-color: #2a7a3b !important; background: #eafaf0 !important; }
+      .pagado-badge.no { color: #a33 !important; border-color: #a33 !important; }
+      .ticket-row:hover { background: transparent !important; }
     }
   </style>
 </head>
@@ -216,7 +251,10 @@
       <button class="filter-btn active" data-filter="pago" data-value="todas">Pago: todas</button>
       <button class="filter-btn" data-filter="pago" data-value="pagado">✓ Pagadas</button>
       <button class="filter-btn" data-filter="pago" data-value="pendiente">Pendientes</button>
-      <input type="text" class="search-input" id="search-input" placeholder="Buscar…" />
+      <div class="filters-right">
+        <input type="text" class="search-input" id="search-input" placeholder="Buscar…" />
+        <button class="btn-print" onclick="window.print()">⎙ Imprimir</button>
+      </div>
     </div>
 
     <!-- TABLE -->
