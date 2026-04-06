@@ -23,6 +23,10 @@ const BACKEND_URL = (() => {
     // GitHub Codespaces: reemplaza el puerto de la URL actual con 3002
     return 'https://' + h.replace(/-\d+\.app\.github\.dev$/, '-3002.app.github.dev') + '/api';
   }
+  if (h.includes('railway.app')) {
+    // Railway: frontend y backend en el mismo servidor
+    return window.location.origin + '/api';
+  }
   return 'http://localhost:3002/api';
 })();
 
