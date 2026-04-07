@@ -143,6 +143,8 @@
       .btn-print { display: none; }
     }
 
+    .print-footer { display: none; }
+
     .btn-print { padding: 0.28rem 0.85rem; border: 1px solid rgba(212,175,55,0.35); background: transparent; color: rgba(212,175,55,0.7); font-family: 'Jost', sans-serif; font-size: 0.63rem; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s; margin-left: auto; }
     .btn-print:hover { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.08); }
 
@@ -174,6 +176,9 @@
       .pagado-badge.si { color: #2a7a3b !important; border-color: #2a7a3b !important; background: #eafaf0 !important; }
       .pagado-badge.no { color: #a33 !important; border-color: #a33 !important; }
       .ticket-row:hover { background: transparent !important; }
+      .print-footer { display: flex !important; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid #ccc; font-size: 9pt; color: #555; }
+      .print-footer strong { color: #111; }
+      .print-footer-sep { color: #aaa; }
     }
   </style>
 </head>
@@ -271,6 +276,12 @@
       <div id="ticket-list">
         <div class="empty-state"><div class="icon">🎭</div><p>Aún no hay entradas registradas</p></div>
       </div>
+    </div>
+
+    <div class="print-footer">
+      <span>Organiza: <strong>Asociación de Kizomba y Semba (Akisemba)</strong></span>
+      <span class="print-footer-sep">·</span>
+      <span>622 055 980</span>
     </div>
 
   </div>
