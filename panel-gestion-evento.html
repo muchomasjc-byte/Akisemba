@@ -202,6 +202,10 @@
                             <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-2.5"></i>
                             <input type="text" id="search-input" placeholder="Buscar asistente..." class="w-full sm:w-64 bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
                         </div>
+                        <button onclick="exportCSV()" class="flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 py-2 px-4 rounded-xl text-sm font-medium transition-colors shadow-sm" title="Exportar a Excel/CSV">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Exportar</span>
+                        </button>
                         <button onclick="window.print()" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-2 px-4 rounded-xl text-sm font-medium transition-colors shadow-sm" title="Imprimir Listado">
                             <i data-lucide="printer" class="w-4 h-4"></i>
                             <span class="hidden sm:inline">Imprimir</span>
@@ -523,6 +527,39 @@
         document.getElementById('search-input').addEventListener('input', e => { searchQ = e.target.value; render(); });
         document.getElementById('inp-nombre').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('btn-submit').click(); });
         document.getElementById('inp-apellidos').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('btn-submit').click(); });
+
+        function exportCSV() {
+            if (tickets.length === 0) return showToast('No hay entradas para exportar', 'error');
+
+            const headers = ['Nº', 'Nombre', 'Apellidos', 'Contacto', 'Tipo', 'Precio (€)', 'Pagado', 'Fecha'];
+            const rows = [...tickets]
+                .sort((a, b) => a.numero - b.numero)
+                .map(t => [
+                    t.numero,
+                    t.nombre,
+                    t.apellidos || '',
+                    t.contacto || '',
+                    t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta',
+                    t.precio,
+                    t.pagado ? 'Sí' : 'No',
+                    t.fecha ? new Date(t.fecha).toLocaleDateString('es-ES') : ''
+                ]);
+
+            // BOM para que Excel abra correctamente con tildes y ñ
+            const BOM = '\uFEFF';
+            const csv = BOM + [headers, ...rows]
+                .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+                .join('\r\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Akisemba_${new Date().toLocaleDateString('es-ES').replace(/\//g,'-')}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('✓ Archivo exportado correctamente');
+        }
 
         load();
         render();
