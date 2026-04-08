@@ -61,6 +61,17 @@
                 <h1 class="text-3xl font-bold text-white tracking-tight">Evento Akisemba</h1>
                 <p class="text-slate-400 text-sm mt-1">Gestión de acceso y recaudación</p>
             </div>
+            <!-- Widget meteorológico -->
+            <div id="weather-widget" class="flex flex-col items-center text-center gap-1 px-6 py-2 bg-slate-900/50 rounded-2xl border border-slate-700/50 min-w-[140px]">
+                <span class="text-3xl" id="weather-icon">⏳</span>
+                <span class="text-2xl font-bold text-white" id="weather-temp">--</span>
+                <span class="text-xs text-slate-300 capitalize" id="weather-desc">Cargando...</span>
+                <div class="flex gap-3 mt-1 text-xs text-slate-400">
+                    <span>💧 <span id="weather-hum">--</span>%</span>
+                    <span>💨 <span id="weather-wind">--</span> km/h</span>
+                </div>
+                <span class="text-xs text-slate-500 mt-0.5">Madrid · 28022</span>
+            </div>
             <div class="text-right">
                 <p class="text-sm font-medium text-slate-300" id="current-date"></p>
                 <p class="text-xs text-slate-500">Madrid, España</p>
@@ -618,6 +629,41 @@
         document.getElementById('import-modal').addEventListener('click', function(e) {
             if (e.target === this) closeImportModal();
         });
+
+        // Widget meteorológico
+        async function fetchWeather() {
+            const icons = {
+                113:'☀️', 116:'⛅', 119:'☁️', 122:'☁️',
+                143:'🌫️', 176:'🌦️', 179:'🌨️', 182:'🌧️',
+                185:'🌧️', 200:'⛈️', 227:'🌨️', 230:'❄️',
+                248:'🌫️', 260:'🌫️', 263:'🌦️', 266:'🌧️',
+                281:'🌧️', 284:'🌧️', 293:'🌦️', 296:'🌧️',
+                299:'🌧️', 302:'🌧️', 305:'🌧️', 308:'🌧️',
+                311:'🌧️', 314:'🌧️', 317:'🌨️', 320:'🌨️',
+                323:'🌨️', 326:'🌨️', 329:'❄️', 332:'❄️',
+                335:'❄️', 338:'❄️', 350:'🌧️', 353:'🌦️',
+                356:'🌧️', 359:'🌧️', 362:'🌨️', 365:'🌨️',
+                368:'🌨️', 371:'❄️', 374:'🌨️', 377:'🌨️',
+                386:'⛈️', 389:'⛈️', 392:'⛈️', 395:'⛈️'
+            };
+            try {
+                const res = await fetch('https://wttr.in/28022?format=j1');
+                const data = await res.json();
+                const cur = data.current_condition[0];
+                const code = parseInt(cur.weatherCode);
+                const desc = cur.lang_es?.[0]?.value || cur.weatherDesc[0].value;
+                document.getElementById('weather-icon').textContent = icons[code] || '🌡️';
+                document.getElementById('weather-temp').textContent = cur.temp_C + '°C';
+                document.getElementById('weather-desc').textContent = desc.toLowerCase();
+                document.getElementById('weather-hum').textContent = cur.humidity;
+                document.getElementById('weather-wind').textContent = cur.windspeedKmph;
+            } catch(e) {
+                document.getElementById('weather-desc').textContent = 'Sin conexión';
+                document.getElementById('weather-icon').textContent = '❓';
+            }
+        }
+        fetchWeather();
+        setInterval(fetchWeather, 10 * 60 * 1000); // actualiza cada 10 min
 
         load();
         render();
