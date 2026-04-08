@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Gestión - Evento Akisemba</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-container::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .tipo-radio:checked + div { border-color: #8b5cf6; background-color: rgba(139, 92, 246, 0.1); }
+        .tipo-radio:checked + div .radio-indicator { border-color: #8b5cf6; border-width: 5px; }
+
+        @media print {
+            body { background-color: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .bg-slate-800, .bg-slate-900, .bg-slate-900\/50, .table-container {
+                background: transparent !important; border: none !important; box-shadow: none !important;
+            }
+            .text-white, .text-slate-400, .text-slate-300, .text-slate-500,
+            .text-purple-400, .text-blue-400, .text-emerald-400 { color: black !important; }
+            .lg\:w-2\/3 { width: 100% !important; max-width: 100% !important; flex: none !important; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border-bottom: 1px solid #ccc !important; padding: 8px 4px !important; }
+            th { border-bottom: 2px solid black !important; font-weight: bold !important; }
+            .bg-purple-500\/10, .bg-blue-500\/10, .bg-emerald-500\/10 {
+                border: 1px solid #888 !important; background: transparent !important;
+            }
+            .print-footer-table { display: table-row-group !important; }
+        }
+        .print-only { display: none; }
+        .print-footer-table { display: none; }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+
+    <!-- Cabecera impresión -->
+    <div id="print-header" class="print-only text-center mb-6 border-b-2 border-black pb-4">
+        <h1 class="text-3xl font-bold mb-1">Listado de Entradas — Noche de Akisemba</h1>
+        <p class="text-sm">Organiza: <strong>Asociación de Kizomba y Semba (Akisemba)</strong> · 622 055 980</p>
+    </div>
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 backdrop-blur-sm no-print">
+            <div>
+                <p class="text-purple-400 font-semibold tracking-wider text-xs uppercase mb-1 flex items-center gap-2">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Panel de Administración
+                </p>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Evento Akisemba</h1>
+                <p class="text-slate-400 text-sm mt-1">Gestión de acceso y recaudación</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-medium text-slate-300" id="current-date"></p>
+                <p class="text-xs text-slate-500">Madrid, España</p>
+            </div>
+        </header>
+
+        <!-- Stats: Contadores -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 no-print">
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-sm flex flex-col justify-center">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Total Entradas</span>
+                <span class="text-3xl font-bold text-white" id="stat-total">0</span>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-sm flex flex-col justify-center">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Anticipadas</span>
+                <span class="text-2xl font-bold text-purple-400" id="stat-anticipadas">0</span>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-sm flex flex-col justify-center">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">En Puerta</span>
+                <span class="text-2xl font-bold text-blue-400" id="stat-puerta">0</span>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-sm flex flex-col justify-center border-b-4 border-b-emerald-500">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Pagadas</span>
+                <span class="text-2xl font-bold text-emerald-400" id="stat-pagadas">0</span>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-sm flex flex-col justify-center border-b-4 border-b-rose-500">
+                <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Pendientes</span>
+                <span class="text-2xl font-bold text-rose-400" id="stat-pendientes">0</span>
+            </div>
+        </div>
+
+        <!-- Stats: Dinero -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+            <div class="bg-slate-800 p-5 rounded-2xl border border-emerald-500/30 shadow-sm flex flex-col justify-center border-b-4 border-b-emerald-500">
+                <span class="text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-1">💰 Dinero Cobrado</span>
+                <span class="text-3xl font-bold text-emerald-400" id="stat-cobrado">0 €</span>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-rose-500/30 shadow-sm flex flex-col justify-center border-b-4 border-b-rose-500">
+                <span class="text-rose-400 text-xs font-semibold uppercase tracking-wider mb-1">⏳ Pendiente de Cobrar</span>
+                <span class="text-3xl font-bold text-rose-400" id="stat-pendiente-euros">0 €</span>
+            </div>
+            <div class="bg-gradient-to-br from-purple-900 to-slate-800 p-5 rounded-2xl border border-purple-500/30 shadow-lg flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 opacity-10"><i data-lucide="coins" class="w-24 h-24"></i></div>
+                <span class="text-purple-200 text-xs font-semibold uppercase tracking-wider mb-1 relative z-10">📊 Recaudación Estimada</span>
+                <span class="text-3xl font-bold text-white relative z-10" id="stat-euros">0 €</span>
+                <span class="text-xs text-purple-300 mt-1 relative z-10">cobrado + pendiente</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <!-- Formulario -->
+            <div class="w-full lg:w-1/3 no-print">
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-lg p-6 sticky top-6">
+                    <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2 border-b border-slate-700 pb-4">
+                        <i data-lucide="ticket" class="w-5 h-5 text-purple-400"></i> Registrar Entrada
+                    </h2>
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Nombre <span class="text-rose-500">*</span></label>
+                                <input type="text" id="inp-nombre" placeholder="Ej. María" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Apellidos</label>
+                                <input type="text" id="inp-apellidos" placeholder="Ej. García" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Contacto (Telf / Email)</label>
+                            <div class="relative">
+                                <i data-lucide="contact" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                                <input type="text" id="inp-contacto" placeholder="600 000 000" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Tipo de Entrada</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer relative">
+                                    <input type="radio" name="tipo" value="anticipada" class="tipo-radio sr-only" checked>
+                                    <div class="border border-slate-700 rounded-xl p-3 hover:border-slate-500 transition-all">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="text-sm font-semibold text-white">Anticipada</span>
+                                            <div class="radio-indicator w-4 h-4 rounded-full border-2 border-slate-600"></div>
+                                        </div>
+                                        <span class="text-lg font-bold text-purple-400">10 €</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative">
+                                    <input type="radio" name="tipo" value="puerta" class="tipo-radio sr-only">
+                                    <div class="border border-slate-700 rounded-xl p-3 hover:border-slate-500 transition-all">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="text-sm font-semibold text-white">Puerta</span>
+                                            <div class="radio-indicator w-4 h-4 rounded-full border-2 border-slate-600"></div>
+                                        </div>
+                                        <span class="text-lg font-bold text-blue-400">13 €</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <label class="flex items-center justify-between p-4 bg-slate-900/50 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-900 transition-colors">
+                                <span class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <i data-lucide="badge-check" class="w-4 h-4" id="icon-pagado"></i>
+                                    <span id="lbl-pagado">Pendiente de pago</span>
+                                </span>
+                                <div class="relative inline-flex items-center">
+                                    <input type="checkbox" id="inp-pagado" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <button id="btn-submit" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3.5 px-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i> Añadir — 10 €
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="w-full lg:w-2/3 flex flex-col gap-4">
+
+                <!-- Filtros -->
+                <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="bg-slate-900 rounded-lg p-1 flex">
+                            <button class="filter-tipo px-3 py-1.5 rounded-md text-xs font-medium bg-slate-700 text-white shadow" data-value="todas">Todas</button>
+                            <button class="filter-tipo px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white" data-value="anticipada">Anticipadas</button>
+                            <button class="filter-tipo px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white" data-value="puerta">Puerta</button>
+                        </div>
+                        <div class="w-px h-6 bg-slate-700 mx-1"></div>
+                        <div class="bg-slate-900 rounded-lg p-1 flex">
+                            <button class="filter-pago px-3 py-1.5 rounded-md text-xs font-medium bg-slate-700 text-white shadow" data-value="todas">Todos</button>
+                            <button class="filter-pago px-3 py-1.5 rounded-md text-xs font-medium text-emerald-400 hover:text-emerald-300" data-value="pagado">Pagadas</button>
+                            <button class="filter-pago px-3 py-1.5 rounded-md text-xs font-medium text-rose-400 hover:text-rose-300" data-value="pendiente">Pendientes</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-auto">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-2.5"></i>
+                            <input type="text" id="search-input" placeholder="Buscar asistente..." class="w-full sm:w-64 bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
+                        </div>
+                        <button onclick="window.print()" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-2 px-4 rounded-xl text-sm font-medium transition-colors shadow-sm" title="Imprimir Listado">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Imprimir</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contador de resultados -->
+                <div id="results-count" class="text-xs text-slate-400 px-1 -mt-2 no-print"></div>
+
+                <!-- Tabla -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-sm overflow-hidden flex-1">
+                    <div class="table-container overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[700px]">
+                            <thead>
+                                <tr class="bg-slate-900/50 border-b border-slate-700 text-xs uppercase tracking-wider text-slate-400">
+                                    <th class="py-4 px-4 font-medium w-12 text-center">#</th>
+                                    <th class="py-4 px-4 font-medium">Asistente</th>
+                                    <th class="py-4 px-4 font-medium">Contacto</th>
+                                    <th class="py-4 px-4 font-medium">Entrada</th>
+                                    <th class="py-4 px-4 font-medium">Estado</th>
+                                    <th class="py-4 px-4 font-medium text-right no-print">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticket-list" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                            <tfoot id="print-totals" class="print-footer-table border-t-2 border-black text-sm font-semibold">
+                                <tr>
+                                    <td colspan="6" class="py-3 px-4">
+                                        <div class="flex flex-wrap gap-6">
+                                            <span>Total asistentes: <strong id="pt-total">0</strong></span>
+                                            <span>💰 Cobrado: <strong id="pt-cobrado">0 €</strong></span>
+                                            <span>⏳ Pendiente: <strong id="pt-pendiente">0 €</strong></span>
+                                            <span>📊 Recaudación estimada: <strong id="pt-total-euros">0 €</strong></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        lucide.createIcons();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-ES', options);
+
+        const PRECIO = { anticipada: 10, puerta: 13 };
+        let tickets = [];
+        let currentFilterTipo = 'todas';
+        let currentFilterPago = 'todas';
+        let searchQ = '';
+        let editId = null;
+
+        function load() { try { tickets = JSON.parse(localStorage.getItem('akisemba-v2') || '[]'); } catch(e){ tickets = []; } }
+        function save() { try { localStorage.setItem('akisemba-v2', JSON.stringify(tickets)); } catch(e){} }
+        function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform transition-all duration-300 translate-y-10 opacity-0 ${isSuccess ? 'bg-emerald-600' : 'bg-rose-600'}`;
+            toast.innerHTML = `<i data-lucide="${isSuccess ? 'check-circle-2' : 'alert-circle'}" class="w-5 h-5"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            requestAnimationFrame(() => { toast.classList.remove('translate-y-10', 'opacity-0'); });
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        // WhatsApp helpers
+        function isPhone(str) {
+            const c = str.replace(/[\s\-\(\)\.]/g, '');
+            return /^[\+\d]{7,15}$/.test(c);
+        }
+        function normalizePhone(str) {
+            let n = str.replace(/[\s\-\(\)\.]/g, '');
+            if (n.startsWith('+')) n = n.slice(1);
+            if (/^[6789]\d{8}$/.test(n)) n = '34' + n;
+            return n;
+        }
+        function whatsappUrl(contacto) {
+            if (!contacto) return null;
+            for (const tok of contacto.split(/[\s·,;|\/]+/)) {
+                if (isPhone(tok)) return 'https://wa.me/' + normalizePhone(tok);
+            }
+            return null;
+        }
+
+        function render() {
+            // Totales globales
+            const ant = tickets.filter(t => t.tipo === 'anticipada').length;
+            const pue = tickets.filter(t => t.tipo === 'puerta').length;
+            const pag = tickets.filter(t => t.pagado).length;
+            const cobrado = tickets.filter(t => t.pagado).reduce((s, t) => s + t.precio, 0);
+            const pendienteEuros = tickets.filter(t => !t.pagado).reduce((s, t) => s + t.precio, 0);
+            const total = cobrado + pendienteEuros;
+
+            document.getElementById('stat-total').textContent = tickets.length;
+            document.getElementById('stat-anticipadas').textContent = ant;
+            document.getElementById('stat-puerta').textContent = pue;
+            document.getElementById('stat-pagadas').textContent = pag;
+            document.getElementById('stat-pendientes').textContent = tickets.length - pag;
+            document.getElementById('stat-cobrado').textContent = cobrado + ' €';
+            document.getElementById('stat-pendiente-euros').textContent = pendienteEuros + ' €';
+            document.getElementById('stat-euros').textContent = total + ' €';
+
+            // Filtrar
+            const filtered = tickets.filter(t => {
+                const mt = currentFilterTipo === 'todas' || t.tipo === currentFilterTipo;
+                const mp = currentFilterPago === 'todas' || (currentFilterPago === 'pagado' ? t.pagado : !t.pagado);
+                const q = searchQ.toLowerCase();
+                const ms = !q || (t.nombre + ' ' + t.apellidos + ' ' + t.contacto).toLowerCase().includes(q);
+                return mt && mp && ms;
+            });
+
+            // Contador de resultados visible en pantalla
+            const countEl = document.getElementById('results-count');
+            if (filtered.length > 0) {
+                const filtCobrado = filtered.filter(t => t.pagado).reduce((s,t)=>s+t.precio,0);
+                const filtPendiente = filtered.filter(t => !t.pagado).reduce((s,t)=>s+t.precio,0);
+                countEl.innerHTML = `Mostrando <strong class="text-slate-200">${filtered.length}</strong> asistente${filtered.length!==1?'s':''} · Cobrado: <strong class="text-emerald-400">${filtCobrado} €</strong> · Pendiente: <strong class="text-rose-400">${filtPendiente} €</strong> · Total: <strong class="text-white">${filtCobrado+filtPendiente} €</strong>`;
+            } else {
+                countEl.innerHTML = '';
+            }
+
+            // Pie de impresión
+            const filtCobradoPrint = filtered.filter(t => t.pagado).reduce((s,t)=>s+t.precio,0);
+            const filtPendientePrint = filtered.filter(t => !t.pagado).reduce((s,t)=>s+t.precio,0);
+            document.getElementById('pt-total').textContent = filtered.length;
+            document.getElementById('pt-cobrado').textContent = filtCobradoPrint + ' €';
+            document.getElementById('pt-pendiente').textContent = filtPendientePrint + ' €';
+            document.getElementById('pt-total-euros').textContent = (filtCobradoPrint + filtPendientePrint) + ' €';
+
+            const list = document.getElementById('ticket-list');
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-500"><i data-lucide="ticket-slash" class="w-12 h-12 mx-auto mb-3 opacity-50"></i><p>${tickets.length === 0 ? 'Aún no hay entradas registradas' : 'No hay resultados para tu búsqueda'}</p></td></tr>`;
+                lucide.createIcons();
+                return;
+            }
+
+            list.innerHTML = filtered.map((t, i) => {
+                const isEdit = editId === t.id;
+                const waUrl = whatsappUrl(t.contacto);
+
+                if (isEdit) {
+                    return `
+                    <tr class="bg-slate-700/30 animate-fade-in border-l-2 border-l-purple-500" data-id="${t.id}">
+                        <td class="py-3 px-4 text-center text-slate-500">${t.numero}</td>
+                        <td class="py-3 px-4 space-y-2">
+                            <input type="text" data-field="nombre" value="${esc(t.nombre)}" class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-sm text-white" placeholder="Nombre">
+                            <input type="text" data-field="apellidos" value="${esc(t.apellidos)}" class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-sm text-white" placeholder="Apellidos">
+                        </td>
+                        <td class="py-3 px-4">
+                            <input type="text" data-field="contacto" value="${esc(t.contacto)}" class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-sm text-white" placeholder="Contacto">
+                        </td>
+                        <td class="py-3 px-4">
+                            <select data-field="tipo" class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white outline-none">
+                                <option value="anticipada" ${t.tipo==='anticipada'?'selected':''}>Antic. (10€)</option>
+                                <option value="puerta" ${t.tipo==='puerta'?'selected':''}>Puerta (13€)</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" data-field="pagado" ${t.pagado?'checked':''} class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-600 rounded focus:ring-emerald-500">
+                                <span class="text-sm">Pagado</span>
+                            </label>
+                        </td>
+                        <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
+                            <button onclick="saveEdit('${t.id}')" class="p-1.5 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded transition-colors" title="Guardar">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="cancelEdit()" class="p-1.5 bg-slate-600/30 text-slate-400 hover:bg-slate-600 hover:text-white rounded transition-colors" title="Cancelar">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                }
+
+                const badgeTipo = t.tipo === 'anticipada'
+                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20"><div class="w-1.5 h-1.5 rounded-full bg-purple-400"></div> Anticipada</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20"><div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div> Puerta</span>`;
+
+                const btnPagado = t.pagado
+                    ? `<button onclick="togglePago('${t.id}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Pagado</button>`
+                    : `<button onclick="togglePago('${t.id}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-400 border border-slate-600 hover:bg-slate-700 transition-colors"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Pendiente</button>`;
+
+                const contactCell = t.contacto
+                    ? (waUrl
+                        ? `<a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-emerald-400 transition-colors" title="Abrir WhatsApp">${esc(t.contacto)} 💬</a>`
+                        : `<span class="text-slate-400">${esc(t.contacto)}</span>`)
+                    : `<span class="text-slate-600">-</span>`;
+
+                return `
+                <tr class="hover:bg-slate-700/20 transition-colors animate-fade-in group">
+                    <td class="py-4 px-4 text-center text-slate-500 font-medium">${t.numero}</td>
+                    <td class="py-4 px-4">
+                        <div class="font-medium text-white">${esc(t.nombre)} ${esc(t.apellidos)}</div>
+                    </td>
+                    <td class="py-4 px-4">${contactCell}</td>
+                    <td class="py-4 px-4">
+                        <div class="flex flex-col items-start gap-1">
+                            ${badgeTipo}
+                            <span class="text-xs font-bold text-slate-300 ml-1">${t.precio} €</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">${btnPagado}</td>
+                    <td class="py-4 px-4 text-right whitespace-nowrap no-print">
+                        <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <button onclick="startEdit('${t.id}')" class="p-2 text-slate-400 hover:text-purple-400 bg-slate-800 hover:bg-slate-700 rounded-lg border border-transparent hover:border-slate-600 transition-all" title="Editar">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteTicket('${t.id}')" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800 hover:bg-slate-700 rounded-lg border border-transparent hover:border-slate-600 transition-all" title="Eliminar">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        window.togglePago = (id) => { tickets = tickets.map(t => t.id === id ? {...t, pagado: !t.pagado} : t); save(); render(); };
+        window.startEdit = (id) => { editId = id; render(); };
+        window.cancelEdit = () => { editId = null; render(); };
+
+        window.saveEdit = (id) => {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const nombre = row.querySelector('[data-field="nombre"]').value.trim();
+            if(!nombre) return showToast('El nombre es obligatorio', 'error');
+            const apellidos = row.querySelector('[data-field="apellidos"]').value.trim();
+            const contacto = row.querySelector('[data-field="contacto"]').value.trim();
+            const tipo = row.querySelector('[data-field="tipo"]').value;
+            const pagado = row.querySelector('[data-field="pagado"]').checked;
+            tickets = tickets.map(t => t.id === id ? {...t, nombre, apellidos, contacto, tipo, precio: PRECIO[tipo], pagado} : t);
+            editId = null; save(); render();
+            showToast('Entrada actualizada correctamente');
+        };
+
+        window.deleteTicket = (id) => {
+            if(confirm('¿Estás seguro de que deseas eliminar esta entrada?')) {
+                tickets = tickets.filter(t => t.id !== id);
+                save(); render();
+                showToast('Entrada eliminada');
+            }
+        };
+
+        document.getElementById('btn-submit').addEventListener('click', () => {
+            const nombre = document.getElementById('inp-nombre').value.trim();
+            if (!nombre) { document.getElementById('inp-nombre').focus(); return showToast('Indica el nombre del asistente', 'error'); }
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const ticket = {
+                id: genId(),
+                numero: tickets.length > 0 ? Math.max(...tickets.map(t => t.numero)) + 1 : 1,
+                nombre,
+                apellidos: document.getElementById('inp-apellidos').value.trim(),
+                contacto: document.getElementById('inp-contacto').value.trim(),
+                tipo,
+                precio: PRECIO[tipo],
+                pagado: document.getElementById('inp-pagado').checked,
+                fecha: new Date().toISOString()
+            };
+            tickets.unshift(ticket);
+            document.getElementById('inp-nombre').value = '';
+            document.getElementById('inp-apellidos').value = '';
+            document.getElementById('inp-contacto').value = '';
+            document.getElementById('inp-nombre').focus();
+            save(); render();
+            showToast('Entrada registrada con éxito');
+        });
+
+        document.getElementById('inp-pagado').addEventListener('change', (e) => {
+            const lbl = document.getElementById('lbl-pagado');
+            const icon = document.getElementById('icon-pagado');
+            if(e.target.checked) {
+                lbl.textContent = 'Pagado';
+                lbl.classList.replace('text-slate-300', 'text-emerald-400');
+                icon.classList.replace('text-slate-300', 'text-emerald-400');
+            } else {
+                lbl.textContent = 'Pendiente de pago';
+                lbl.classList.replace('text-emerald-400', 'text-slate-300');
+                icon.classList.replace('text-emerald-400', 'text-slate-300');
+            }
+        });
+
+        document.querySelectorAll('input[name="tipo"]').forEach(r => {
+            r.addEventListener('change', () => {
+                const precio = r.value === 'anticipada' ? 10 : 13;
+                document.getElementById('btn-submit').innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5"></i> Añadir — ${precio} €`;
+                lucide.createIcons();
+            });
+        });
+
+        function setupFilters(selector, isPago = false) {
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll(selector).forEach(b => {
+                        b.className = b.className.replace('bg-slate-700 text-white shadow', 'text-slate-400 hover:text-white');
+                    });
+                    const target = e.target;
+                    target.className = target.className.replace(/text-[a-z]+-\d+ hover:text-[a-z]+-\d+|text-slate-400 hover:text-white/, 'bg-slate-700 text-white shadow');
+                    if(!isPago) currentFilterTipo = target.dataset.value;
+                    else currentFilterPago = target.dataset.value;
+                    render();
+                });
+            });
+        }
+        setupFilters('.filter-tipo');
+        setupFilters('.filter-pago', true);
+
+        document.getElementById('search-input').addEventListener('input', e => { searchQ = e.target.value; render(); });
+        document.getElementById('inp-nombre').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('btn-submit').click(); });
+        document.getElementById('inp-apellidos').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('btn-submit').click(); });
+
+        load();
+        render();
+    </script>
+</body>
+</html>
