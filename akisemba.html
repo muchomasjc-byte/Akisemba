@@ -77,7 +77,8 @@
     .filter-btn.active { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.08); }
     .filter-btn:hover { border-color: rgba(212,175,55,0.45); color: rgba(240,232,208,0.75); }
     .filter-sep { width: 1px; height: 14px; background: rgba(212,175,55,0.2); margin: 0 0.2rem; flex-shrink: 0; align-self: center; }
-    .search-input { margin-left: auto; background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.15); border-radius: 2px; padding: 0.28rem 0.75rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 160px; transition: border-color 0.2s; }
+    .filters-right { margin-left: auto; display: flex; gap: 0.4rem; align-items: center; }
+    .search-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.15); border-radius: 2px; padding: 0.28rem 0.75rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 160px; transition: border-color 0.2s; }
     .search-input:focus { border-color: rgba(212,175,55,0.4); }
     .search-input::placeholder { color: rgba(240,232,208,0.2); }
 
@@ -113,6 +114,10 @@
     .btn-action.cancel-btn { border-color: rgba(255,255,255,0.12); color: rgba(240,232,208,0.45); }
     .btn-action.confirm-yes { background: #e05252; border-color: #e05252; color: #fff; }
     .btn-action.confirm-no { border-color: rgba(255,255,255,0.12); color: rgba(240,232,208,0.45); }
+    .btn-wa { background: none; border: 1px solid rgba(37,211,102,0.28); color: rgba(37,211,102,0.65); cursor: pointer; font-size: 0.8rem; transition: all 0.2s; padding: 0.22rem 0.5rem; border-radius: 2px; text-decoration: none; display: inline-flex; align-items: center; line-height: 1; }
+    .btn-wa:hover { color: #25d366; border-color: #25d366; background: rgba(37,211,102,0.09); }
+    .td-contact a { color: inherit; text-decoration: none; }
+    .td-contact a:hover { color: rgba(37,211,102,0.9); }
 
     .inline-input { background: rgba(255,255,255,0.07); border: 1px solid rgba(212,175,55,0.3); border-radius: 2px; padding: 0.28rem 0.45rem; color: #f0e8d0; font-family: 'Jost', sans-serif; font-size: 0.78rem; outline: none; width: 100%; margin-bottom: 0.25rem; display: block; }
     .inline-input:last-child { margin-bottom: 0; }
@@ -132,9 +137,48 @@
     @media (max-width: 720px) {
       .stats-grid { grid-template-columns: repeat(3, 1fr); }
       .form-row { grid-template-columns: 1fr; }
-      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 105px 58px 90px; }
+      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 105px 58px 115px; }
       .col-contacto, .col-precio { display: none; }
-      .search-input { width: 110px; }
+      .search-input { width: 100px; }
+      .btn-print { display: none; }
+    }
+
+    .print-footer { display: none; }
+
+    .btn-print { padding: 0.28rem 0.85rem; border: 1px solid rgba(212,175,55,0.35); background: transparent; color: rgba(212,175,55,0.7); font-family: 'Jost', sans-serif; font-size: 0.63rem; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s; margin-left: auto; }
+    .btn-print:hover { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.08); }
+
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+      .bg-pattern, .form-section, .filters, .btn-print, .toast, .actions, .header-eyebrow { display: none !important; }
+      .header { padding: 0.5rem 0 0.75rem; }
+      .header h1 { font-size: 2rem; color: #111 !important; text-shadow: none !important; }
+      .header-sub { color: #555 !important; }
+      .header::after { background: #111 !important; }
+      .content { max-width: 100%; padding: 0.5rem 1rem; }
+      .stats-grid { grid-template-columns: repeat(6, 1fr); gap: 0.4rem; margin-bottom: 1rem; }
+      .stat-card { border: 1px solid #ccc !important; background: #f9f9f9 !important; padding: 0.5rem; }
+      .stat-card::before { display: none; }
+      .stat-value { color: #111 !important; font-size: 1.2rem; }
+      .stat-value.green { color: #2a7a3b !important; }
+      .stat-value.red { color: #a33 !important; }
+      .stat-label { color: #555 !important; }
+      .table-section { border: 1px solid #ccc !important; background: #fff !important; }
+      .table-header-row, .ticket-row { grid-template-columns: 34px 1fr 1fr 110px 60px 70px !important; border-bottom: 1px solid #ddd !important; padding: 0.4rem 0.6rem; }
+      .col-contacto, .col-precio { display: block !important; }
+      .th { color: #555 !important; }
+      .td, .td-name, .td-contact { color: #111 !important; }
+      .td-num { color: #888 !important; }
+      .td-price { color: #111 !important; }
+      .badge-anticipada { background: #fdf3d0 !important; border-color: #c9a227 !important; color: #7a5c00 !important; }
+      .badge-puerta { background: #f0f0f0 !important; border-color: #bbb !important; color: #444 !important; }
+      .pagado-badge.si { color: #2a7a3b !important; border-color: #2a7a3b !important; background: #eafaf0 !important; }
+      .pagado-badge.no { color: #a33 !important; border-color: #a33 !important; }
+      .ticket-row:hover { background: transparent !important; }
+      .print-footer { display: flex !important; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid #ccc; font-size: 9pt; color: #555; }
+      .print-footer strong { color: #111; }
+      .print-footer-sep { color: #aaa; }
     }
   </style>
 </head>
@@ -212,7 +256,10 @@
       <button class="filter-btn active" data-filter="pago" data-value="todas">Pago: todas</button>
       <button class="filter-btn" data-filter="pago" data-value="pagado">✓ Pagadas</button>
       <button class="filter-btn" data-filter="pago" data-value="pendiente">Pendientes</button>
-      <input type="text" class="search-input" id="search-input" placeholder="Buscar…" />
+      <div class="filters-right">
+        <input type="text" class="search-input" id="search-input" placeholder="Buscar…" />
+        <button class="btn-print" onclick="window.print()">⎙ Imprimir</button>
+      </div>
     </div>
 
     <!-- TABLE -->
@@ -229,6 +276,12 @@
       <div id="ticket-list">
         <div class="empty-state"><div class="icon">🎭</div><p>Aún no hay entradas registradas</p></div>
       </div>
+    </div>
+
+    <div class="print-footer">
+      <span>Organiza: <strong>Asociación de Kizomba y Semba (Akisemba)</strong></span>
+      <span class="print-footer-sep">·</span>
+      <span>622 055 980</span>
     </div>
 
   </div>
@@ -297,6 +350,8 @@
         const isEdit = editId === t.id;
         const isConfirm = confirmId === t.id;
 
+        const waUrl = whatsappUrl(t.contacto);
+
         const nombreCell = isEdit
           ? `<input class="inline-input" data-field="nombre" value="${esc(t.nombre)}" placeholder="Nombre">
              <input class="inline-input" data-field="apellidos" value="${esc(t.apellidos)}" placeholder="Apellidos">`
@@ -304,7 +359,11 @@
 
         const contactoCell = isEdit
           ? `<input class="inline-input" data-field="contacto" value="${esc(t.contacto)}" placeholder="Contacto">`
-          : (t.contacto ? esc(t.contacto) : '—');
+          : (t.contacto
+              ? (waUrl
+                  ? `<a href="${waUrl}" target="_blank" rel="noopener noreferrer">${esc(t.contacto)}</a>`
+                  : esc(t.contacto))
+              : '—');
 
         const tipoCell = isEdit
           ? `<select class="inline-select" data-field="tipo">
@@ -336,6 +395,7 @@
           </div>`;
         } else {
           accionesCell = `<div class="actions">
+            ${waUrl ? `<a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener noreferrer" title="Abrir WhatsApp">💬</a>` : ''}
             <button class="btn-action edit" data-action="edit" data-id="${t.id}">✎ Editar</button>
             <button class="btn-action delete" data-action="delete" data-id="${t.id}">✕</button>
           </div>`;
@@ -382,6 +442,28 @@
 
     function esc(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // WhatsApp helpers
+    function isPhone(str) {
+      const cleaned = str.replace(/[\s\-\(\)\.]/g, '');
+      return /^[\+\d]{7,15}$/.test(cleaned);
+    }
+    function normalizePhone(str) {
+      let num = str.replace(/[\s\-\(\)\.]/g, '');
+      if (num.startsWith('+')) num = num.slice(1);
+      // Spanish mobile/landline without country code (9 digits starting with 6/7/8/9)
+      if (/^[6789]\d{8}$/.test(num)) num = '34' + num;
+      return num;
+    }
+    function whatsappUrl(contacto) {
+      if (!contacto) return null;
+      // Support entries like "600 123 456 · email@..." — scan each token
+      const tokens = contacto.split(/[\s·,;|\/]+/);
+      for (const tok of tokens) {
+        if (isPhone(tok)) return 'https://wa.me/' + normalizePhone(tok);
+      }
+      return null;
     }
 
     // Get edit data from DOM
