@@ -206,6 +206,10 @@
                             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                             <span class="hidden sm:inline">Exportar</span>
                         </button>
+                        <button onclick="openImportModal()" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-purple-700 text-white border border-slate-600 hover:border-purple-500 py-2 px-4 rounded-xl text-sm font-medium transition-colors shadow-sm" title="Importar datos desde otro archivo">
+                            <i data-lucide="database" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Importar</span>
+                        </button>
                         <button onclick="window.print()" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-2 px-4 rounded-xl text-sm font-medium transition-colors shadow-sm" title="Imprimir Listado">
                             <i data-lucide="printer" class="w-4 h-4"></i>
                             <span class="hidden sm:inline">Imprimir</span>
@@ -251,6 +255,28 @@
     </div>
 
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <!-- Modal Importar datos -->
+    <div id="import-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <i data-lucide="database" class="w-5 h-5 text-purple-400"></i> Importar datos
+            </h2>
+            <p class="text-sm text-slate-400">
+                Abre <strong class="text-slate-200">Comunicación.html</strong> en Chrome, pulsa <kbd class="bg-slate-700 px-1.5 py-0.5 rounded text-xs">F12</kbd> → Console, escribe <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-purple-300">allow pasting</code> y pulsa Enter. Luego escribe:
+                <code class="block bg-slate-900 rounded-lg px-3 py-2 mt-2 text-xs text-emerald-300 select-all">localStorage.getItem('akisemba-v2')</code>
+                Selecciona todo el resultado y cópialo. Después pégalo aquí:
+            </p>
+            <textarea id="import-textarea" rows="6" placeholder='["{"id":"...","nombre":"..."}"]' class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none"></textarea>
+            <div id="import-error" class="text-rose-400 text-sm hidden"></div>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeImportModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 transition-colors">Cancelar</button>
+                <button onclick="doImport()" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-purple-600 hover:bg-purple-500 transition-colors flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i> Importar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         lucide.createIcons();
@@ -560,6 +586,45 @@
             URL.revokeObjectURL(url);
             showToast('✓ Archivo exportado correctamente');
         }
+
+        function openImportModal() {
+            document.getElementById('import-textarea').value = '';
+            document.getElementById('import-error').classList.add('hidden');
+            const modal = document.getElementById('import-modal');
+            modal.classList.remove('hidden');
+            lucide.createIcons({ root: modal });
+            document.getElementById('import-textarea').focus();
+        }
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.add('hidden');
+        }
+        function doImport() {
+            const raw = document.getElementById('import-textarea').value.trim();
+            const errEl = document.getElementById('import-error');
+            errEl.classList.add('hidden');
+            if (!raw) { errEl.textContent = 'Pega los datos antes de continuar.'; errEl.classList.remove('hidden'); return; }
+            let data;
+            try {
+                // Si el usuario pegó con comillas externas del console ('"[...]"'), las quitamos
+                const clean = raw.startsWith('"') && raw.endsWith('"') ? JSON.parse(raw) : raw;
+                data = JSON.parse(clean);
+            } catch(e) {
+                errEl.textContent = 'Formato no válido. Asegúrate de haber copiado todo el resultado del console.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (!Array.isArray(data)) { errEl.textContent = 'Los datos no tienen el formato esperado (debe ser una lista).'; errEl.classList.remove('hidden'); return; }
+            if (tickets.length > 0 && !confirm(`Actualmente hay ${tickets.length} entradas. ¿Quieres reemplazarlas con las ${data.length} entradas importadas?`)) return;
+            tickets = data;
+            save();
+            render();
+            closeImportModal();
+            showToast(`✓ ${data.length} entradas importadas correctamente`);
+        }
+        // Cerrar modal al pulsar fuera
+        document.getElementById('import-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeImportModal();
+        });
 
         load();
         render();
