@@ -266,61 +266,72 @@
     <div id="ticket-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="flex flex-col items-center gap-4">
             <!-- Tarjeta del ticket -->
-            <div id="ticket-card" style="width:360px;height:640px;background:linear-gradient(160deg,#0f0a1e 0%,#1e0a3c 45%,#0a1a2e 100%);border-radius:24px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:white;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.8);">
-                <!-- Franja decorativa superior -->
+            <div id="ticket-card" style="width:360px;height:740px;background:linear-gradient(160deg,#0f0a1e 0%,#1e0a3c 45%,#0a1a2e 100%);border-radius:24px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:white;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+                <!-- Franja superior -->
                 <div style="height:6px;background:linear-gradient(90deg,#c8102e 0%,#f4d03f 35%,#c8102e 65%,#f4d03f 100%);flex-shrink:0;"></div>
-                <!-- Logo como fondo fantasma -->
-                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-                    <img src="logo.png" style="width:90%;opacity:0.04;filter:invert(1) brightness(2);" alt="">
+                <!-- Fondo fantasma -->
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;">
+                    <img src="logo.png" style="width:95%;opacity:0.05;" alt="" onerror="this.style.display='none'">
                 </div>
                 <!-- Contenido -->
-                <div style="flex:1;display:flex;flex-direction:column;padding:24px;position:relative;z-index:1;">
-                    <!-- Logo principal -->
-                    <div style="text-align:center;margin-bottom:16px;">
-                        <img src="logo.png" style="height:70px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(200,16,46,0.4));" alt="Akisemba">
+                <div style="flex:1;display:flex;flex-direction:column;padding:20px 22px;position:relative;z-index:1;gap:10px;">
+                    <!-- Logo / cabecera -->
+                    <div style="text-align:center;">
+                        <img src="logo.png" style="height:65px;object-fit:contain;filter:drop-shadow(0 2px 10px rgba(200,16,46,0.5));" alt="Akisemba"
+                             onerror="this.style.display='none';document.getElementById('tk-logo-text').style.display='block';">
+                        <div id="tk-logo-text" style="display:none;font-size:30px;font-weight:900;letter-spacing:2px;color:white;">A<span style="color:#c8102e">K</span>ISEMBA<br><span style="font-size:9px;letter-spacing:4px;color:#94a3b8;font-weight:400;">ASOCIACIÓN DE KIZOMBA Y SEMBA</span></div>
                     </div>
-                    <!-- Línea divisoria -->
-                    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(244,211,63,0.5),transparent);margin-bottom:14px;"></div>
-                    <!-- Subtítulo evento -->
-                    <div style="text-align:center;margin-bottom:14px;">
-                        <p style="font-size:9px;letter-spacing:4px;color:#a78bfa;font-weight:700;text-transform:uppercase;margin-bottom:4px;">Entrada Oficial</p>
-                        <p style="font-size:17px;font-weight:800;color:white;letter-spacing:1px;">Noche de Akisemba</p>
+                    <!-- Línea dorada -->
+                    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(244,211,63,0.6),transparent);"></div>
+                    <!-- Título evento -->
+                    <div style="text-align:center;">
+                        <p style="font-size:9px;letter-spacing:4px;color:#a78bfa;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Entrada Oficial</p>
+                        <p style="font-size:18px;font-weight:800;color:white;letter-spacing:0.5px;margin-bottom:6px;">Noche de Akisemba</p>
+                        <!-- Datos del evento -->
+                        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 12px;display:inline-block;width:100%;box-sizing:border-box;">
+                            <p style="font-size:11px;color:#e2e8f0;font-weight:600;margin-bottom:2px;">📍 Club Enchufla</p>
+                            <p style="font-size:10px;color:#94a3b8;margin-bottom:5px;">C/ Cerro de la Alcazaba, 38 · 28053 Madrid</p>
+                            <p style="font-size:11px;color:#f4d03f;font-weight:700;margin-bottom:1px;">📅 Sábado 11 de abril de 2026</p>
+                            <p style="font-size:11px;color:#e2e8f0;font-weight:500;margin-bottom:5px;">🕐 23:30 — 03:30</p>
+                            <div style="height:1px;background:rgba(255,255,255,0.1);margin:5px 0;"></div>
+                            <p style="font-size:10px;color:#a78bfa;font-weight:600;">🥂 Incluye 1 copa, 2 refrescos o 2 cervezas</p>
+                        </div>
                     </div>
-                    <!-- Línea punteada -->
-                    <div style="border-top:1px dashed rgba(255,255,255,0.15);margin-bottom:18px;"></div>
+                    <!-- Línea punteada corte -->
+                    <div style="border-top:1px dashed rgba(255,255,255,0.2);"></div>
                     <!-- Nº entrada -->
-                    <div style="text-align:center;margin-bottom:16px;">
-                        <p style="font-size:9px;letter-spacing:3px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Nº de Entrada</p>
-                        <p style="font-size:48px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 20px rgba(244,211,63,0.4);" id="tk-numero">—</p>
+                    <div style="text-align:center;">
+                        <p style="font-size:8px;letter-spacing:3px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Nº de Entrada</p>
+                        <p style="font-size:46px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 20px rgba(244,211,63,0.4);" id="tk-numero">—</p>
                     </div>
                     <!-- Nombre -->
-                    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;margin-bottom:10px;text-align:center;">
-                        <p style="font-size:9px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Asistente</p>
-                        <p style="font-size:18px;font-weight:700;color:white;" id="tk-nombre">—</p>
-                        <p style="font-size:13px;color:#cbd5e1;margin-top:2px;" id="tk-apellidos"></p>
+                    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;text-align:center;">
+                        <p style="font-size:8px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">Asistente</p>
+                        <p style="font-size:17px;font-weight:700;color:white;" id="tk-nombre">—</p>
+                        <p style="font-size:12px;color:#cbd5e1;margin-top:1px;" id="tk-apellidos"></p>
                     </div>
                     <!-- Contacto -->
-                    <div style="text-align:center;margin-bottom:12px;">
-                        <p style="font-size:9px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Contacto</p>
-                        <p style="font-size:13px;color:#e2e8f0;font-weight:500;" id="tk-contacto">—</p>
+                    <div style="text-align:center;">
+                        <p style="font-size:8px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Contacto</p>
+                        <p style="font-size:12px;color:#e2e8f0;font-weight:500;" id="tk-contacto">—</p>
                     </div>
                     <!-- Tipo + Precio -->
-                    <div style="display:flex;gap:10px;margin-bottom:12px;">
-                        <div style="flex:1;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:10px;text-align:center;">
-                            <p style="font-size:9px;letter-spacing:2px;color:#a78bfa;text-transform:uppercase;margin-bottom:4px;">Tipo</p>
-                            <p style="font-size:14px;font-weight:700;color:white;" id="tk-tipo">—</p>
+                    <div style="display:flex;gap:8px;">
+                        <div style="flex:1;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:9px;text-align:center;">
+                            <p style="font-size:8px;letter-spacing:2px;color:#a78bfa;text-transform:uppercase;margin-bottom:3px;">Tipo</p>
+                            <p style="font-size:13px;font-weight:700;color:white;" id="tk-tipo">—</p>
                         </div>
-                        <div style="flex:1;background:rgba(244,211,63,0.1);border:1px solid rgba(244,211,63,0.3);border-radius:10px;padding:10px;text-align:center;">
-                            <p style="font-size:9px;letter-spacing:2px;color:#f4d03f;text-transform:uppercase;margin-bottom:4px;">Precio</p>
-                            <p style="font-size:22px;font-weight:900;color:#f4d03f;" id="tk-precio">—</p>
+                        <div style="flex:1;background:rgba(244,211,63,0.1);border:1px solid rgba(244,211,63,0.3);border-radius:10px;padding:9px;text-align:center;">
+                            <p style="font-size:8px;letter-spacing:2px;color:#f4d03f;text-transform:uppercase;margin-bottom:3px;">Precio</p>
+                            <p style="font-size:20px;font-weight:900;color:#f4d03f;" id="tk-precio">—</p>
                         </div>
                     </div>
-                    <!-- Estado pago -->
+                    <!-- Estado -->
                     <div style="text-align:center;">
-                        <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:999px;font-size:13px;font-weight:700;">—</span>
+                        <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:6px;padding:7px 20px;border-radius:999px;font-size:13px;font-weight:700;">—</span>
                     </div>
                 </div>
-                <!-- Franja decorativa inferior -->
+                <!-- Franja inferior -->
                 <div style="height:6px;background:linear-gradient(90deg,#c8102e 0%,#f4d03f 35%,#c8102e 65%,#f4d03f 100%);flex-shrink:0;"></div>
             </div>
             <!-- Botones -->
