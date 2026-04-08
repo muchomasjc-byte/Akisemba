@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
         input[type="number"]::-webkit-inner-spin-button,
@@ -261,6 +262,79 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
     <!-- Modal Importar datos -->
+    <!-- Modal Ticket -->
+    <div id="ticket-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="flex flex-col items-center gap-4">
+            <!-- Tarjeta del ticket -->
+            <div id="ticket-card" style="width:360px;height:640px;background:linear-gradient(160deg,#0f0a1e 0%,#1e0a3c 45%,#0a1a2e 100%);border-radius:24px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:white;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+                <!-- Franja decorativa superior -->
+                <div style="height:6px;background:linear-gradient(90deg,#c8102e 0%,#f4d03f 35%,#c8102e 65%,#f4d03f 100%);flex-shrink:0;"></div>
+                <!-- Logo como fondo fantasma -->
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                    <img src="logo.png" style="width:90%;opacity:0.04;filter:invert(1) brightness(2);" alt="">
+                </div>
+                <!-- Contenido -->
+                <div style="flex:1;display:flex;flex-direction:column;padding:24px;position:relative;z-index:1;">
+                    <!-- Logo principal -->
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <img src="logo.png" style="height:70px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(200,16,46,0.4));" alt="Akisemba">
+                    </div>
+                    <!-- Línea divisoria -->
+                    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(244,211,63,0.5),transparent);margin-bottom:14px;"></div>
+                    <!-- Subtítulo evento -->
+                    <div style="text-align:center;margin-bottom:14px;">
+                        <p style="font-size:9px;letter-spacing:4px;color:#a78bfa;font-weight:700;text-transform:uppercase;margin-bottom:4px;">Entrada Oficial</p>
+                        <p style="font-size:17px;font-weight:800;color:white;letter-spacing:1px;">Noche de Akisemba</p>
+                    </div>
+                    <!-- Línea punteada -->
+                    <div style="border-top:1px dashed rgba(255,255,255,0.15);margin-bottom:18px;"></div>
+                    <!-- Nº entrada -->
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <p style="font-size:9px;letter-spacing:3px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Nº de Entrada</p>
+                        <p style="font-size:48px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 20px rgba(244,211,63,0.4);" id="tk-numero">—</p>
+                    </div>
+                    <!-- Nombre -->
+                    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;margin-bottom:10px;text-align:center;">
+                        <p style="font-size:9px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Asistente</p>
+                        <p style="font-size:18px;font-weight:700;color:white;" id="tk-nombre">—</p>
+                        <p style="font-size:13px;color:#cbd5e1;margin-top:2px;" id="tk-apellidos"></p>
+                    </div>
+                    <!-- Contacto -->
+                    <div style="text-align:center;margin-bottom:12px;">
+                        <p style="font-size:9px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;">Contacto</p>
+                        <p style="font-size:13px;color:#e2e8f0;font-weight:500;" id="tk-contacto">—</p>
+                    </div>
+                    <!-- Tipo + Precio -->
+                    <div style="display:flex;gap:10px;margin-bottom:12px;">
+                        <div style="flex:1;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <p style="font-size:9px;letter-spacing:2px;color:#a78bfa;text-transform:uppercase;margin-bottom:4px;">Tipo</p>
+                            <p style="font-size:14px;font-weight:700;color:white;" id="tk-tipo">—</p>
+                        </div>
+                        <div style="flex:1;background:rgba(244,211,63,0.1);border:1px solid rgba(244,211,63,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <p style="font-size:9px;letter-spacing:2px;color:#f4d03f;text-transform:uppercase;margin-bottom:4px;">Precio</p>
+                            <p style="font-size:22px;font-weight:900;color:#f4d03f;" id="tk-precio">—</p>
+                        </div>
+                    </div>
+                    <!-- Estado pago -->
+                    <div style="text-align:center;">
+                        <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:999px;font-size:13px;font-weight:700;">—</span>
+                    </div>
+                </div>
+                <!-- Franja decorativa inferior -->
+                <div style="height:6px;background:linear-gradient(90deg,#c8102e 0%,#f4d03f 35%,#c8102e 65%,#f4d03f 100%);flex-shrink:0;"></div>
+            </div>
+            <!-- Botones -->
+            <div class="flex gap-3">
+                <button onclick="downloadTicket()" class="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-lg">
+                    <i data-lucide="download" class="w-4 h-4"></i> Descargar imagen
+                </button>
+                <button onclick="closeTicket()" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-medium px-5 py-2.5 rounded-xl transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="import-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -452,6 +526,9 @@
                     <td class="py-4 px-4">${btnPagado}</td>
                     <td class="py-4 px-4 text-right whitespace-nowrap no-print">
                         <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <button onclick="openTicket('${t.id}')" class="p-2 text-slate-400 hover:text-yellow-400 bg-slate-800 hover:bg-slate-700 rounded-lg border border-transparent hover:border-slate-600 transition-all" title="Ver ticket">
+                                <i data-lucide="ticket" class="w-4 h-4"></i>
+                            </button>
                             <button onclick="startEdit('${t.id}')" class="p-2 text-slate-400 hover:text-purple-400 bg-slate-800 hover:bg-slate-700 rounded-lg border border-transparent hover:border-slate-600 transition-all" title="Editar">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </button>
@@ -629,6 +706,50 @@
         document.getElementById('import-modal').addEventListener('click', function(e) {
             if (e.target === this) closeImportModal();
         });
+
+        // Ticket
+        window.openTicket = (id) => {
+            const t = tickets.find(t => t.id === id);
+            if (!t) return;
+            document.getElementById('tk-numero').textContent = t.numero;
+            document.getElementById('tk-nombre').textContent = t.nombre;
+            document.getElementById('tk-apellidos').textContent = t.apellidos || '';
+            document.getElementById('tk-contacto').textContent = t.contacto || '—';
+            document.getElementById('tk-tipo').textContent = t.tipo === 'anticipada' ? '🎟 Anticipada' : '🚪 Puerta';
+            document.getElementById('tk-precio').textContent = t.precio + ' €';
+            const pagadoEl = document.getElementById('tk-pagado');
+            if (t.pagado) {
+                pagadoEl.textContent = '✓ PAGADO';
+                pagadoEl.style.background = 'rgba(16,185,129,0.2)';
+                pagadoEl.style.border = '1px solid rgba(16,185,129,0.5)';
+                pagadoEl.style.color = '#34d399';
+            } else {
+                pagadoEl.textContent = '⏳ PENDIENTE DE PAGO';
+                pagadoEl.style.background = 'rgba(244,63,94,0.2)';
+                pagadoEl.style.border = '1px solid rgba(244,63,94,0.4)';
+                pagadoEl.style.color = '#fb7185';
+            }
+            const modal = document.getElementById('ticket-modal');
+            modal.classList.remove('hidden');
+            lucide.createIcons({ root: modal });
+        };
+        window.closeTicket = () => document.getElementById('ticket-modal').classList.add('hidden');
+        document.getElementById('ticket-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeTicket();
+        });
+        window.downloadTicket = async () => {
+            const card = document.getElementById('ticket-card');
+            try {
+                const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: null });
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                const num = document.getElementById('tk-numero').textContent;
+                a.download = `ticket-akisemba-${num}.png`;
+                a.click();
+            } catch(e) {
+                showToast('No se pudo generar la imagen', 'error');
+            }
+        };
 
         // Widget meteorológico
         async function fetchWeather() {
