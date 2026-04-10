@@ -6,7 +6,7 @@ const { db }  = require('../db');
 router.get('/stats', (req, res) => {
   const totalRevenue = db.prepare('SELECT COALESCE(SUM(total), 0) AS v FROM orders').get().v;
   const totalOrders  = db.prepare('SELECT COUNT(*) AS v FROM orders').get().v;
-  const totalTickets = db.prepare('SELECT COALESCE(SUM(qty), 0) AS v FROM order_items').get().v;
+  const totalTickets = db.prepare('SELECT COALESCE(SUM(qty), 0) AS v FROM order_items WHERE order_id IN (SELECT id FROM orders)').get().v;
   const avgOrder     = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
   // Hoy (comparando solo la parte de fecha)
@@ -16,11 +16,13 @@ router.get('/stats', (req, res) => {
 
   const topStyleRow = db.prepare(`
     SELECT event_style, SUM(subtotal) AS revenue
-    FROM order_items GROUP BY event_style ORDER BY revenue DESC LIMIT 1
+    FROM order_items WHERE order_id IN (SELECT id FROM orders)
+    GROUP BY event_style ORDER BY revenue DESC LIMIT 1
   `).get();
   const topEventRow = db.prepare(`
     SELECT event_title, SUM(subtotal) AS revenue
-    FROM order_items GROUP BY event_title ORDER BY revenue DESC LIMIT 1
+    FROM order_items WHERE order_id IN (SELECT id FROM orders)
+    GROUP BY event_title ORDER BY revenue DESC LIMIT 1
   `).get();
 
   return res.json({
@@ -64,6 +66,7 @@ router.get('/sales-by-style', (req, res) => {
            SUM(qty)      AS tickets,
            COUNT(DISTINCT order_id) AS orders
     FROM order_items
+    WHERE order_id IN (SELECT id FROM orders)
     GROUP BY event_style
     ORDER BY revenue DESC
   `).all();
@@ -78,6 +81,7 @@ router.get('/top-events', (req, res) => {
            SUM(qty)      AS tickets,
            COUNT(DISTINCT order_id) AS orders
     FROM order_items
+    WHERE order_id IN (SELECT id FROM orders)
     GROUP BY event_id
     ORDER BY revenue DESC
     LIMIT 8
@@ -105,6 +109,7 @@ router.get('/tickets-by-type', (req, res) => {
            SUM(qty)      AS tickets,
            SUM(subtotal) AS revenue
     FROM order_items
+    WHERE order_id IN (SELECT id FROM orders)
     GROUP BY ticket_name
     ORDER BY tickets DESC
     LIMIT 10

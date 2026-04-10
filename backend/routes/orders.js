@@ -107,7 +107,11 @@ router.put('/:id', (req, res) => {
 
 // ─── DELETE /api/orders/:id ───────────────────────────────────────────────────
 router.delete('/:id', (req, res) => {
-  const { changes } = db.prepare('DELETE FROM orders WHERE id = ?').run(req.params.id);
+  const deleteOrder = db.transaction(() => {
+    db.prepare('DELETE FROM order_items WHERE order_id = ?').run(req.params.id);
+    return db.prepare('DELETE FROM orders WHERE id = ?').run(req.params.id).changes;
+  });
+  const changes = deleteOrder();
   if (changes === 0) return res.status(404).json({ error: 'No encontrado.' });
   return res.json({ success: true });
 });
