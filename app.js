@@ -62,7 +62,7 @@ async function loadEventsFromAPI() {
       }));
     }
   } catch (e) {
-    console.warn('[RitmoBoleto] No se pudieron cargar eventos del backend:', e.message);
+    console.warn('[AkiTix] No se pudieron cargar eventos del backend:', e.message);
   }
 }
 
@@ -235,7 +235,7 @@ function formatPrice(amount) {
 }
 
 function generateCode() {
-  return 'RB-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  return 'AKT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
 function getStyleClass(style) {
@@ -642,7 +642,7 @@ async function sendConfirmationEmail({ name, email, code, cartItems, total }) {
 
   if (!EMAILJS_READY) {
     // Sin credenciales: simular envío
-    console.warn('[RitmoBoleto] EmailJS no configurado. Simulando envío a:', email);
+    console.warn('[AkiTix] EmailJS no configurado. Simulando envío a:', email);
     await new Promise(r => setTimeout(r, 1200)); // simular latencia
     return { simulated: true };
   }

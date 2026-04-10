@@ -1,4 +1,4 @@
 node_modules/
 backend/node_modules/
-backend/ritmoboleto.db
+backend/akitix.db
 .claude/

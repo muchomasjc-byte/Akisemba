@@ -1,7 +1,7 @@
 {
-  "name": "akisemba",
+  "name": "akitix",
   "version": "1.0.0",
-  "description": "RitmoBoleto — venta de entradas de baile",
+  "description": "AkiTix — venta de entradas de baile",
   "scripts": {
     "build": "cd backend && npm install",
     "start": "node backend/server.js"

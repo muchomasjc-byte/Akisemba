@@ -4,7 +4,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'ritmoboleto.db');
+const DB_PATH = path.join(__dirname, 'akitix.db');
 
 let _db            = null;   // instancia sql.js Database
 let _inTransaction = false;

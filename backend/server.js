@@ -46,7 +46,7 @@ async function start() {
 
   // ─── Arrancar servidor ─────────────────────────────────────────────────────
   app.listen(PORT, () => {
-    console.log(`\n🎵  RitmoBoleto Backend  →  http://localhost:${PORT}`);
+    console.log(`\n🎵  AkiTix Backend  →  http://localhost:${PORT}`);
     console.log(`📊  Panel de admin      →  http://localhost:${PORT}/admin`);
     console.log(`🔌  API REST            →  http://localhost:${PORT}/api\n`);
   });

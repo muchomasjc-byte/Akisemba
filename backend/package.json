@@ -1,7 +1,7 @@
 {
-  "name": "ritmoboleto-backend",
+  "name": "akitix-backend",
   "version": "1.0.0",
-  "description": "Backend API para RitmoBoleto — venta de entradas de baile",
+  "description": "Backend API para AkiTix — venta de entradas de baile",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
