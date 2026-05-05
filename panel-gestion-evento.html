@@ -47,7 +47,7 @@
 
     <!-- Cabecera impresión -->
     <div id="print-header" class="print-only text-center mb-6 border-b-2 border-black pb-4">
-        <h1 class="text-3xl font-bold mb-1">Listado de Entradas — Noche de Akisemba</h1>
+        <h1 class="text-3xl font-bold mb-1" id="print-event-name">Listado de Entradas — Noche de Akisemba</h1>
         <p class="text-sm">Organiza: <strong>Asociación de Kizomba y Semba (Akisemba)</strong> · 622 055 980</p>
     </div>
 
@@ -73,9 +73,18 @@
                 </div>
                 <span class="text-xs text-slate-500 mt-0.5">Madrid · 28022</span>
             </div>
-            <div class="text-right">
+            <div class="flex flex-col items-end gap-2">
                 <p class="text-sm font-medium text-slate-300" id="current-date"></p>
-                <p class="text-xs text-slate-500">Madrid, España</p>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-white leading-tight" id="hdr-event-nombre">—</p>
+                        <p class="text-xs text-slate-400" id="hdr-event-fecha">—</p>
+                    </div>
+                    <button onclick="openEventsModal()" class="flex items-center gap-1.5 bg-purple-600/80 hover:bg-purple-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-colors border border-purple-500/50" title="Gestionar eventos">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Eventos</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -268,9 +277,9 @@
             <!-- Tarjeta del ticket -->
             <div id="ticket-card" style="width:380px;height:760px;background:linear-gradient(170deg,#080612 0%,#120826 40%,#0a1628 100%);border-radius:28px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:white;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,0.9);">
                 <!-- Franja superior tricolor -->
-                <div style="height:7px;background:linear-gradient(90deg,#c8102e 0%,#c8102e 25%,#f4d03f 40%,#f4d03f 60%,#c8102e 75%,#c8102e 100%);flex-shrink:0;"></div>
+                <div id="tk-stripe-top" style="height:7px;background:linear-gradient(90deg,#c8102e 0%,#c8102e 25%,#f4d03f 40%,#f4d03f 60%,#c8102e 75%,#c8102e 100%);flex-shrink:0;"></div>
                 <!-- Círculos decorativos de fondo -->
-                <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(200,16,46,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+                <div id="tk-circle-accent" style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(200,16,46,0.12) 0%,transparent 70%);pointer-events:none;"></div>
                 <div style="position:absolute;bottom:80px;left:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);pointer-events:none;"></div>
                 <!-- Logo fondo fantasma -->
                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
@@ -297,20 +306,20 @@
                         <div style="display:inline-block;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:3px 14px;margin-bottom:6px;">
                             <span style="font-size:9px;letter-spacing:4px;color:#a78bfa;font-weight:700;text-transform:uppercase;">Entrada Oficial</span>
                         </div>
-                        <p style="font-size:20px;font-weight:800;color:white;letter-spacing:0.5px;">Noche de Akisemba</p>
+                        <p id="tk-event-nombre" style="font-size:20px;font-weight:800;color:white;letter-spacing:0.5px;">Noche de Akisemba</p>
                     </div>
 
                     <!-- DATOS DEL EVENTO -->
                     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:11px 14px;margin-bottom:14px;width:100%;">
                         <div style="text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px;">
-                            <p style="font-size:13px;font-weight:700;color:white;margin-bottom:2px;">📍 Club Enchufla</p>
-                            <p style="font-size:10px;color:#94a3b8;">C/ Cerro de la Alcazaba, 38 · 28053 Madrid</p>
+                            <p id="tk-event-lugar" style="font-size:13px;font-weight:700;color:white;margin-bottom:2px;">📍 Club Enchufla</p>
+                            <p id="tk-event-dir" style="font-size:10px;color:#94a3b8;">C/ Cerro de la Alcazaba, 38 · 28053 Madrid</p>
                         </div>
                         <div style="text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px;">
-                            <p style="font-size:13px;font-weight:800;color:#f4d03f;">📅 Sábado 11 de abril de 2026</p>
-                            <p style="font-size:12px;color:#e2e8f0;margin-top:1px;">🕐 23:30 — 03:30 h</p>
+                            <p id="tk-event-fecha" style="font-size:13px;font-weight:800;color:#f4d03f;">📅 Sábado 11 de abril de 2026</p>
+                            <p id="tk-event-hora" style="font-size:12px;color:#e2e8f0;margin-top:1px;">🕐 23:30 — 03:30 h</p>
                         </div>
-                        <p style="font-size:11px;color:#a78bfa;font-weight:600;text-align:center;">🥂 Incluye 1 copa, 2 refrescos o 2 cervezas</p>
+                        <p id="tk-event-consumicion" style="font-size:11px;color:#a78bfa;font-weight:600;text-align:center;">🥂 Incluye 1 copa, 2 refrescos o 2 cervezas</p>
                     </div>
 
                     <!-- CORTE PUNTEADO -->
@@ -358,7 +367,7 @@
 
                 </div>
                 <!-- Franja inferior -->
-                <div style="height:7px;background:linear-gradient(90deg,#c8102e 0%,#c8102e 25%,#f4d03f 40%,#f4d03f 60%,#c8102e 75%,#c8102e 100%);flex-shrink:0;"></div>
+                <div id="tk-stripe-bot" style="height:7px;background:linear-gradient(90deg,#c8102e 0%,#c8102e 25%,#f4d03f 40%,#f4d03f 60%,#c8102e 75%,#c8102e 100%);flex-shrink:0;"></div>
             </div>
             <!-- Botones -->
             <div class="flex gap-3 flex-wrap justify-center">
@@ -396,20 +405,144 @@
         </div>
     </div>
 
+    <!-- Modal Gestionar Eventos -->
+    <div id="events-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <i data-lucide="calendar-days" class="w-5 h-5 text-purple-400"></i> Gestionar Eventos
+                </h2>
+                <button onclick="closeEventsModal()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="events-list" class="space-y-2"></div>
+            <div class="border-t border-slate-700 pt-4">
+                <button onclick="showNewEventForm()" id="btn-show-new-event" class="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-colors">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Nuevo Evento
+                </button>
+            </div>
+            <div id="new-event-form" class="hidden space-y-3 border-t border-slate-700 pt-4">
+                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Crear nuevo evento</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-xs text-slate-400 mb-1">Nombre del evento *</label>
+                        <input id="nev-nombre" type="text" placeholder="Noche de Akisemba" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Fecha</label>
+                        <input id="nev-fecha" type="text" placeholder="Sábado 9 de mayo de 2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Horario</label>
+                        <input id="nev-hora" type="text" placeholder="23:30 — 03:30" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Lugar</label>
+                        <input id="nev-lugar" type="text" placeholder="Club Enchufla" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Precio anticipada (€)</label>
+                        <input id="nev-precio-ant" type="number" placeholder="10" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Precio puerta (€)</label>
+                        <input id="nev-precio-pue" type="number" placeholder="13" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-slate-400 mb-1">Dirección</label>
+                        <input id="nev-dir" type="text" placeholder="C/ Ejemplo, 1. 28000 Madrid" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-slate-400 mb-1">Consumición incluida</label>
+                        <input id="nev-consumicion" type="text" placeholder="Incluye 1 copa o 2 refrescos" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-slate-400 mb-2">Color del ticket</label>
+                        <div id="nev-colores" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button onclick="cancelNewEvent()" class="flex-1 px-4 py-2 rounded-xl text-sm font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 transition-colors">Cancelar</button>
+                    <button onclick="createNewEvent()" class="flex-1 px-4 py-2 rounded-xl text-sm font-medium text-white bg-purple-600 hover:bg-purple-500 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Crear evento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-ES', options);
 
-        const PRECIO = { anticipada: 10, puerta: 13 };
+        const PALETA = [
+            {hex:'#c8102e',label:'Rojo'},    {hex:'#7c3aed',label:'Púrpura'},
+            {hex:'#1d4ed8',label:'Azul'},     {hex:'#059669',label:'Verde'},
+            {hex:'#ea580c',label:'Naranja'},  {hex:'#db2777',label:'Rosa'},
+            {hex:'#0891b2',label:'Cian'},     {hex:'#b45309',label:'Dorado'},
+        ];
+
+        let eventos = [];
+        let activeEventId = null;
+        let activeEvento = null;
+        let newEvtColor = '#7c3aed';
         let tickets = [];
         let currentFilterTipo = 'todas';
         let currentFilterPago = 'todas';
         let searchQ = '';
         let editId = null;
 
-        function load() { try { tickets = JSON.parse(localStorage.getItem('akisemba-v2') || '[]'); } catch(e){ tickets = []; } }
-        function save() { try { localStorage.setItem('akisemba-v2', JSON.stringify(tickets)); } catch(e){} }
+        function loadEvents() {
+            try { eventos = JSON.parse(localStorage.getItem('akisemba-events') || '[]'); } catch(e){ eventos = []; }
+            activeEventId = localStorage.getItem('akisemba-active') || null;
+            if (eventos.length === 0) {
+                const def = { id: 'evt-' + Date.now(), nombre: 'Noche de Akisemba',
+                    fechaTexto: 'Sábado 11 de abril de 2026', hora: '23:30 — 03:30',
+                    lugar: 'Club Enchufla', direccion: 'C/ Cerro de la Alcazaba, 38. 28053 Madrid',
+                    consumicion: 'Incluye 1 copa, 2 refrescos o 2 cervezas',
+                    color: '#c8102e', precios: { anticipada: 10, puerta: 13 } };
+                const old = (() => { try { return JSON.parse(localStorage.getItem('akisemba-v2') || '[]'); } catch(e){ return []; } })();
+                eventos = [def];
+                localStorage.setItem('akisemba-events', JSON.stringify(eventos));
+                localStorage.setItem('akisemba-tickets-' + def.id, JSON.stringify(old));
+                activeEventId = def.id;
+                localStorage.setItem('akisemba-active', activeEventId);
+            }
+            if (!activeEventId || !eventos.find(e => e.id === activeEventId)) {
+                activeEventId = eventos[0].id;
+                localStorage.setItem('akisemba-active', activeEventId);
+            }
+            activeEvento = eventos.find(e => e.id === activeEventId);
+        }
+        function load() {
+            loadEvents();
+            try { tickets = JSON.parse(localStorage.getItem('akisemba-tickets-' + activeEventId) || '[]'); } catch(e){ tickets = []; }
+        }
+        function save() {
+            try {
+                localStorage.setItem('akisemba-tickets-' + activeEventId, JSON.stringify(tickets));
+                localStorage.setItem('akisemba-events', JSON.stringify(eventos));
+            } catch(e){}
+        }
+        function saveEvents() { try { localStorage.setItem('akisemba-events', JSON.stringify(eventos)); } catch(e){} }
+        function switchEvent(id) {
+            activeEventId = id;
+            activeEvento = eventos.find(e => e.id === id);
+            localStorage.setItem('akisemba-active', id);
+            try { tickets = JSON.parse(localStorage.getItem('akisemba-tickets-' + id) || '[]'); } catch(e){ tickets = []; }
+            editId = null; currentFilterTipo = 'todas'; currentFilterPago = 'todas'; searchQ = '';
+            document.getElementById('search-input').value = '';
+            updateHeaderEvent();
+            render();
+        }
+        function updateHeaderEvent() {
+            document.getElementById('hdr-event-nombre').textContent = activeEvento.nombre;
+            document.getElementById('hdr-event-fecha').textContent = activeEvento.fechaTexto;
+            document.getElementById('print-event-name').textContent = 'Listado de Entradas — ' + activeEvento.nombre;
+            const tipoVal = document.querySelector('input[name="tipo"]:checked')?.value || 'anticipada';
+            document.getElementById('btn-submit').innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5"></i> Añadir — ${activeEvento.precios[tipoVal]} €`;
+            lucide.createIcons();
+        }
         function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 
         function showToast(msg, type = 'success') {
@@ -595,7 +728,7 @@
             const contacto = row.querySelector('[data-field="contacto"]').value.trim();
             const tipo = row.querySelector('[data-field="tipo"]').value;
             const pagado = row.querySelector('[data-field="pagado"]').checked;
-            tickets = tickets.map(t => t.id === id ? {...t, nombre, apellidos, contacto, tipo, precio: PRECIO[tipo], pagado} : t);
+            tickets = tickets.map(t => t.id === id ? {...t, nombre, apellidos, contacto, tipo, precio: activeEvento.precios[tipo], pagado} : t);
             editId = null; save(); render();
             showToast('Entrada actualizada correctamente');
         };
@@ -619,7 +752,7 @@
                 apellidos: document.getElementById('inp-apellidos').value.trim(),
                 contacto: document.getElementById('inp-contacto').value.trim(),
                 tipo,
-                precio: PRECIO[tipo],
+                precio: activeEvento.precios[tipo],
                 pagado: document.getElementById('inp-pagado').checked,
                 fecha: new Date().toISOString()
             };
@@ -648,7 +781,7 @@
 
         document.querySelectorAll('input[name="tipo"]').forEach(r => {
             r.addEventListener('change', () => {
-                const precio = r.value === 'anticipada' ? 10 : 13;
+                const precio = activeEvento.precios[r.value];
                 document.getElementById('btn-submit').innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5"></i> Añadir — ${precio} €`;
                 lucide.createIcons();
             });
@@ -770,6 +903,19 @@
                 pagadoEl.style.border = '1px solid rgba(244,63,94,0.4)';
                 pagadoEl.style.color = '#fb7185';
             }
+            // Apply event-specific colors and details
+            const ev = activeEvento;
+            const c = ev.color;
+            const sg = `linear-gradient(90deg,${c} 0%,${c} 25%,#f4d03f 40%,#f4d03f 60%,${c} 75%,${c} 100%)`;
+            document.getElementById('tk-stripe-top').style.background = sg;
+            document.getElementById('tk-stripe-bot').style.background = sg;
+            document.getElementById('tk-circle-accent').style.background = `radial-gradient(circle,${c}22 0%,transparent 70%)`;
+            document.getElementById('tk-event-nombre').textContent = ev.nombre;
+            document.getElementById('tk-event-lugar').textContent = '📍 ' + ev.lugar;
+            document.getElementById('tk-event-dir').textContent = ev.direccion;
+            document.getElementById('tk-event-fecha').textContent = '📅 ' + ev.fechaTexto;
+            document.getElementById('tk-event-hora').textContent = '🕐 ' + ev.hora + ' h';
+            document.getElementById('tk-event-consumicion').textContent = '🥂 ' + ev.consumicion;
             const modal = document.getElementById('ticket-modal');
             modal.classList.remove('hidden');
             lucide.createIcons({ root: modal });
@@ -782,7 +928,8 @@
             if (!url) return showToast('Este registro no tiene un número de WhatsApp válido', 'error');
             const tipo = t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta';
             const estado = t.pagado ? '✅ PAGADO' : '⏳ Pendiente de pago';
-            const msg = `Hola ${t.nombre}, aquí tienes tu entrada para la *Noche de Akisemba* 🎉\n\n🎟 *Entrada Nº ${t.numero}*\n👤 ${t.nombre}${t.apellidos ? ' ' + t.apellidos : ''}\n\n📅 Sábado 11 de abril de 2026\n🕐 23:30 — 03:30 h\n📍 Club Enchufla · C/ Cerro de la Alcazaba, 38 · Madrid\n\n🎫 Tipo: ${tipo} · 💶 Precio: ${t.precio} €\n${estado}\n\n🥂 _Incluye 1 copa, 2 refrescos o 2 cervezas_\n\n¡Te esperamos! 💃🕺`;
+            const ev = activeEvento;
+            const msg = `Hola ${t.nombre}, aquí tienes tu entrada para *${ev.nombre}* 🎉\n\n🎟 *Entrada Nº ${t.numero}*\n👤 ${t.nombre}${t.apellidos ? ' ' + t.apellidos : ''}\n\n📅 ${ev.fechaTexto}\n🕐 ${ev.hora} h\n📍 ${ev.lugar} · ${ev.direccion}\n\n🎫 Tipo: ${tipo} · 💶 Precio: ${t.precio} €\n${estado}\n\n🥂 _${ev.consumicion}_\n\n¡Te esperamos! 💃🕺`;
             window.open(url + '?text=' + encodeURIComponent(msg), '_blank');
         };
         document.getElementById('ticket-modal').addEventListener('click', function(e) {
@@ -835,9 +982,97 @@
             }
         }
         fetchWeather();
-        setInterval(fetchWeather, 10 * 60 * 1000); // actualiza cada 10 min
+        setInterval(fetchWeather, 10 * 60 * 1000);
+
+        // ── Gestión de eventos ────────────────────────────────────────────────
+        function openEventsModal() {
+            renderEventsList();
+            document.getElementById('new-event-form').classList.add('hidden');
+            document.getElementById('btn-show-new-event').classList.remove('hidden');
+            const modal = document.getElementById('events-modal');
+            modal.classList.remove('hidden');
+            lucide.createIcons({ root: modal });
+        }
+        function closeEventsModal() { document.getElementById('events-modal').classList.add('hidden'); }
+        document.getElementById('events-modal').addEventListener('click', function(e){ if(e.target===this) closeEventsModal(); });
+
+        function renderEventsList() {
+            const c = document.getElementById('events-list');
+            c.innerHTML = eventos.map(ev => {
+                const isActive = ev.id === activeEventId;
+                const count = (() => { try { return JSON.parse(localStorage.getItem('akisemba-tickets-' + ev.id) || '[]').length; } catch(e){ return 0; } })();
+                return `<div class="flex items-center gap-3 p-3 rounded-xl border ${isActive ? 'border-purple-500 bg-purple-500/10' : 'border-slate-700 bg-slate-900/50 hover:border-slate-500 cursor-pointer'} transition-colors" ${isActive ? '' : `onclick="selectEvent('${ev.id}')"`}>
+                    <div class="w-5 h-5 rounded-full flex-shrink-0 border-2 border-white/20" style="background:${ev.color};"></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white truncate">${esc(ev.nombre)}</p>
+                        <p class="text-xs text-slate-400">${esc(ev.fechaTexto||'Sin fecha')} · ${count} entradas</p>
+                    </div>
+                    ${isActive ? '<span class="text-xs font-bold text-purple-400 bg-purple-500/15 px-2 py-1 rounded-lg whitespace-nowrap">Activo</span>' : `<button onclick="event.stopPropagation();deleteEvt('${ev.id}')" class="p-1.5 text-slate-500 hover:text-rose-400 transition-colors flex-shrink-0" title="Eliminar"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`}
+                </div>`;
+            }).join('');
+            lucide.createIcons({ root: c });
+        }
+
+        window.selectEvent = (id) => { switchEvent(id); closeEventsModal(); };
+        window.deleteEvt = (id) => {
+            const ev = eventos.find(e => e.id === id);
+            if (!confirm(`¿Eliminar "${ev.nombre}" y todas sus entradas? No se puede deshacer.`)) return;
+            eventos = eventos.filter(e => e.id !== id);
+            localStorage.removeItem('akisemba-tickets-' + id);
+            saveEvents();
+            renderEventsList();
+            showToast('Evento eliminado');
+        };
+
+        function showNewEventForm() {
+            newEvtColor = '#7c3aed';
+            renderColorPicker();
+            ['nev-nombre','nev-fecha','nev-hora','nev-lugar','nev-dir','nev-consumicion'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('nev-precio-ant').value = '10';
+            document.getElementById('nev-precio-pue').value = '13';
+            document.getElementById('new-event-form').classList.remove('hidden');
+            document.getElementById('btn-show-new-event').classList.add('hidden');
+            lucide.createIcons({ root: document.getElementById('new-event-form') });
+        }
+        function cancelNewEvent() {
+            document.getElementById('new-event-form').classList.add('hidden');
+            document.getElementById('btn-show-new-event').classList.remove('hidden');
+        }
+        function renderColorPicker() {
+            document.getElementById('nev-colores').innerHTML = PALETA.map(p =>
+                `<button onclick="window.selectColor('${p.hex}')" style="background:${p.hex};" title="${p.label}"
+                    class="w-8 h-8 rounded-full border-4 transition-all ${newEvtColor===p.hex ? 'border-white scale-110' : 'border-transparent opacity-60 hover:opacity-100'}"></button>`
+            ).join('');
+        }
+        window.selectColor = (hex) => { newEvtColor = hex; renderColorPicker(); };
+
+        function createNewEvent() {
+            const nombre = document.getElementById('nev-nombre').value.trim();
+            if (!nombre) return showToast('El nombre del evento es obligatorio', 'error');
+            const newEv = {
+                id: 'evt-' + Date.now(),
+                nombre,
+                fechaTexto: document.getElementById('nev-fecha').value.trim(),
+                hora: document.getElementById('nev-hora').value.trim(),
+                lugar: document.getElementById('nev-lugar').value.trim(),
+                direccion: document.getElementById('nev-dir').value.trim(),
+                consumicion: document.getElementById('nev-consumicion').value.trim(),
+                color: newEvtColor,
+                precios: {
+                    anticipada: parseFloat(document.getElementById('nev-precio-ant').value) || 10,
+                    puerta: parseFloat(document.getElementById('nev-precio-pue').value) || 13
+                }
+            };
+            eventos.push(newEv);
+            saveEvents();
+            localStorage.setItem('akisemba-tickets-' + newEv.id, '[]');
+            showToast(`✓ Evento "${nombre}" creado`);
+            switchEvent(newEv.id);
+            closeEventsModal();
+        }
 
         load();
+        updateHeaderEvent();
         render();
     </script>
 </body>
