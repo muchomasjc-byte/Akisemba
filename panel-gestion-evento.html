@@ -927,14 +927,19 @@
             document.getElementById('tk-event-fecha').textContent = '📅 ' + ev.fechaTexto;
             document.getElementById('tk-event-hora').textContent = '🕐 ' + ev.hora + ' h';
             document.getElementById('tk-event-consumicion').textContent = '🥂 ' + ev.consumicion;
-            // QR code
-            const qrWrap = document.getElementById('tk-qr-container');
-            qrWrap.innerHTML = '';
-            const qrText = `AKISEMBA | ${ev.nombre}\nNº ${t.numero} | ${t.nombre}${t.apellidos ? ' ' + t.apellidos : ''}\n${t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta'} | ${t.pagado ? 'PAGADO' : 'PENDIENTE'}`;
-            new QRCode(qrWrap, { text: qrText, width: 100, height: 100, colorDark: '#ffffff', colorLight: 'rgba(0,0,0,0)', correctLevel: QRCode.CorrectLevel.M });
+            // Mostrar modal primero (el QR no puede bloquear la apertura)
             const modal = document.getElementById('ticket-modal');
             modal.classList.remove('hidden');
             lucide.createIcons({ root: modal });
+            // QR code (no bloquea si la librería no carga)
+            try {
+                const qrWrap = document.getElementById('tk-qr-container');
+                qrWrap.innerHTML = '';
+                const qrText = `AKISEMBA | ${ev.nombre} | N.${t.numero} | ${t.nombre}${t.apellidos ? ' ' + t.apellidos : ''} | ${t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta'} | ${t.pagado ? 'PAGADO' : 'PENDIENTE'}`;
+                new QRCode(qrWrap, { text: qrText, width: 100, height: 100, colorDark: '#ffffff', colorLight: '#08080f', correctLevel: QRCode.CorrectLevel.M });
+            } catch(e) {
+                document.getElementById('tk-qr-container').innerHTML = '<p style="color:#475569;font-size:9px;padding:4px 8px;text-align:center;">QR no disponible</p>';
+            }
         };
         window.closeTicket = () => document.getElementById('ticket-modal').classList.add('hidden');
         window.whatsappTicket = () => {
