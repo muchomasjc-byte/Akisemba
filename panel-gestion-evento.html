@@ -276,105 +276,87 @@
     <div id="ticket-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="flex flex-col items-center gap-4">
             <!-- Tarjeta del ticket -->
-            <div id="ticket-card" style="width:380px;height:760px;background:linear-gradient(170deg,#080612 0%,#120826 40%,#0a1628 100%);border-radius:28px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:white;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,0.9);">
-                <!-- Franja superior tricolor -->
-                <div id="tk-stripe-top" style="height:7px;background:linear-gradient(90deg,#c8102e 0%,#c8102e 25%,#f4d03f 40%,#f4d03f 60%,#c8102e 75%,#c8102e 100%);flex-shrink:0;"></div>
-                <!-- Círculos decorativos de fondo -->
-                <div id="tk-circle-accent" style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(200,16,46,0.12) 0%,transparent 70%);pointer-events:none;"></div>
-                <div style="position:absolute;bottom:80px;left:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);pointer-events:none;"></div>
-                <!-- Logo fondo fantasma -->
-                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-                    <img src="logo.png" style="width:85%;opacity:0.04;" alt="" onerror="this.style.display='none'">
+            <div id="ticket-card" style="width:370px;background:#08040f;border-radius:22px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:white;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.95);">
+                <!-- Círculos de fondo (color actualizado por JS) -->
+                <div id="tk-circle-accent" style="position:absolute;top:-60px;right:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(200,16,46,0.18) 0%,transparent 65%);pointer-events:none;z-index:0;"></div>
+                <div id="tk-circle-2"       style="position:absolute;bottom:120px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(200,16,46,0.10) 0%,transparent 65%);pointer-events:none;z-index:0;"></div>
+                <!-- Logo fantasma de fondo -->
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;">
+                    <img src="logo.png" style="width:80%;opacity:0.035;" alt="" onerror="this.style.display='none'">
                 </div>
-                <!-- Contenido -->
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:22px 24px;position:relative;z-index:1;">
 
-                    <!-- LOGO / MARCA -->
-                    <div style="text-align:center;margin-bottom:12px;width:100%;">
-                        <img src="logo.png" style="height:68px;object-fit:contain;filter:drop-shadow(0 3px 12px rgba(200,16,46,0.6));" alt=""
-                             onerror="this.style.display='none';document.getElementById('tk-logo-text').style.display='block';">
-                        <div id="tk-logo-text" style="display:none;">
-                            <div style="font-size:36px;font-weight:900;letter-spacing:3px;color:white;line-height:1;">A<span style="color:#c8102e">K</span>ISEMBA</div>
-                            <div style="font-size:8px;letter-spacing:5px;color:#64748b;margin-top:4px;">ASOCIACIÓN DE KIZOMBA Y SEMBA</div>
-                        </div>
+                <!-- ① FRANJA TOP -->
+                <div id="tk-stripe-top" style="height:8px;flex-shrink:0;position:relative;z-index:2;background:linear-gradient(90deg,#c8102e 0%,#c8102e 30%,#f4d03f 45%,#f4d03f 55%,#c8102e 70%,#c8102e 100%);"></div>
+
+                <!-- ② CABECERA: logo + evento + badge -->
+                <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:16px 22px 12px;border-bottom:1px solid rgba(255,255,255,0.07);">
+                    <img src="logo.png" style="height:52px;object-fit:contain;margin-bottom:7px;" alt=""
+                         onerror="this.style.display='none';document.getElementById('tk-logo-text').style.display='block';">
+                    <div id="tk-logo-text" style="display:none;text-align:center;margin-bottom:7px;">
+                        <div style="font-size:28px;font-weight:900;letter-spacing:3px;color:white;line-height:1;">A<span id="tk-logo-k" style="color:#c8102e;">K</span>ISEMBA</div>
+                        <div style="font-size:7px;letter-spacing:4px;color:#475569;margin-top:2px;">ASOCIACIÓN DE KIZOMBA Y SEMBA</div>
                     </div>
-
-                    <!-- SEPARADOR DORADO -->
-                    <div style="height:1px;width:100%;background:linear-gradient(90deg,transparent,#f4d03f,transparent);margin-bottom:12px;opacity:0.7;"></div>
-
-                    <!-- ENTRADA OFICIAL + EVENTO -->
-                    <div style="text-align:center;margin-bottom:12px;width:100%;">
-                        <div style="display:inline-block;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:3px 14px;margin-bottom:6px;">
-                            <span style="font-size:9px;letter-spacing:4px;color:#a78bfa;font-weight:700;text-transform:uppercase;">Entrada Oficial</span>
-                        </div>
-                        <p id="tk-event-nombre" style="font-size:20px;font-weight:800;color:white;letter-spacing:0.5px;">Noche de Akisemba</p>
+                    <p id="tk-event-nombre" style="font-size:16px;font-weight:800;color:white;letter-spacing:0.3px;text-align:center;margin-bottom:7px;line-height:1.2;">Noche de Akisemba</p>
+                    <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:20px;padding:3px 13px;">
+                        <span style="font-size:7px;letter-spacing:3px;color:#94a3b8;text-transform:uppercase;font-weight:600;">Entrada Oficial</span>
                     </div>
-
-                    <!-- DATOS DEL EVENTO -->
-                    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:11px 14px;margin-bottom:14px;width:100%;">
-                        <div style="text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px;">
-                            <p id="tk-event-lugar" style="font-size:13px;font-weight:700;color:white;margin-bottom:2px;">📍 Club Enchufla</p>
-                            <p id="tk-event-dir" style="font-size:10px;color:#94a3b8;">C/ Cerro de la Alcazaba, 38 · 28053 Madrid</p>
-                        </div>
-                        <div style="text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px;">
-                            <p id="tk-event-fecha" style="font-size:13px;font-weight:800;color:#f4d03f;">📅 Sábado 11 de abril de 2026</p>
-                            <p id="tk-event-hora" style="font-size:12px;color:#e2e8f0;margin-top:1px;">🕐 23:30 — 03:30 h</p>
-                        </div>
-                        <p id="tk-event-consumicion" style="font-size:11px;color:#a78bfa;font-weight:600;text-align:center;">🥂 Incluye 1 copa, 2 refrescos o 2 cervezas</p>
-                    </div>
-
-                    <!-- CORTE PUNTEADO -->
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;width:100%;">
-                        <div style="flex:1;border-top:1.5px dashed rgba(255,255,255,0.15);"></div>
-                        <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);"></div>
-                        <div style="flex:1;border-top:1.5px dashed rgba(255,255,255,0.15);"></div>
-                    </div>
-
-                    <!-- Nº ENTRADA -->
-                    <div style="text-align:center;margin-bottom:14px;width:100%;">
-                        <p style="font-size:8px;letter-spacing:4px;color:#64748b;text-transform:uppercase;margin-bottom:2px;">Nº de Entrada</p>
-                        <p style="font-size:34px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 30px rgba(244,211,63,0.5);" id="tk-numero">—</p>
-                    </div>
-
-                    <!-- NOMBRE Y APELLIDOS -->
-                    <div style="background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(59,130,246,0.08));border:1px solid rgba(139,92,246,0.25);border-radius:16px;padding:14px 18px;margin-bottom:10px;text-align:center;width:100%;">
-                        <p style="font-size:8px;letter-spacing:3px;color:#94a3b8;text-transform:uppercase;margin-bottom:6px;">Asistente</p>
-                        <p style="font-size:22px;font-weight:800;color:white;line-height:1.2;" id="tk-nombre">—</p>
-                        <p style="font-size:17px;font-weight:600;color:#cbd5e1;margin-top:2px;" id="tk-apellidos"></p>
-                    </div>
-
-                    <!-- CONTACTO -->
-                    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:10px 16px;margin-bottom:12px;text-align:center;width:100%;">
-                        <p style="font-size:8px;letter-spacing:3px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">📱 Contacto</p>
-                        <p style="font-size:18px;font-weight:700;color:#e2e8f0;letter-spacing:1px;" id="tk-contacto">—</p>
-                    </div>
-
-                    <!-- TIPO + PRECIO -->
-                    <div style="display:flex;gap:10px;margin-bottom:12px;width:100%;">
-                        <div style="flex:1;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:10px;text-align:center;">
-                            <p style="font-size:8px;letter-spacing:2px;color:#a78bfa;text-transform:uppercase;margin-bottom:4px;">Tipo</p>
-                            <p style="font-size:14px;font-weight:700;color:white;" id="tk-tipo">—</p>
-                        </div>
-                        <div style="flex:1;background:rgba(244,211,63,0.08);border:1px solid rgba(244,211,63,0.35);border-radius:12px;padding:10px;text-align:center;">
-                            <p style="font-size:8px;letter-spacing:2px;color:#f4d03f;text-transform:uppercase;margin-bottom:4px;">Precio</p>
-                            <p style="font-size:24px;font-weight:900;color:#f4d03f;" id="tk-precio">—</p>
-                        </div>
-                    </div>
-
-                    <!-- ESTADO PAGO -->
-                    <div style="text-align:center;margin-bottom:14px;width:100%;">
-                        <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:8px;padding:10px 28px;border-radius:999px;font-size:14px;font-weight:800;letter-spacing:1px;">—</span>
-                    </div>
-
-                    <!-- QR CODE -->
-                    <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;">
-                        <div id="tk-qr-container" style="padding:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;"></div>
-                        <p style="font-size:7px;letter-spacing:3px;color:#64748b;text-transform:uppercase;">Escanear para verificar</p>
-                    </div>
-
                 </div>
-                <!-- Franja inferior -->
-                <div id="tk-stripe-bot" style="height:7px;background:linear-gradient(90deg,#c8102e 0%,#c8102e 25%,#f4d03f 40%,#f4d03f 60%,#c8102e 75%,#c8102e 100%);flex-shrink:0;"></div>
+
+                <!-- Separador dorado -->
+                <div style="height:1px;background:linear-gradient(90deg,transparent,#f4d03f80,transparent);position:relative;z-index:2;"></div>
+
+                <!-- ③ DATOS DEL EVENTO -->
+                <div style="position:relative;z-index:2;padding:11px 22px 11px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <p id="tk-event-lugar" style="font-size:12px;font-weight:700;color:white;margin-bottom:1px;">📍 Club Enchufla</p>
+                    <p id="tk-event-dir"   style="font-size:9px;color:#475569;margin-bottom:7px;">C/ Cerro de la Alcazaba, 38 · 28053 Madrid</p>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <p id="tk-event-fecha" style="font-size:12px;font-weight:800;color:#f4d03f;">📅 Sábado 11 de abril de 2026</p>
+                        <p id="tk-event-hora"  style="font-size:11px;font-weight:600;color:#e2e8f0;">🕐 23:30–03:30</p>
+                    </div>
+                    <p id="tk-event-consumicion" style="font-size:9px;color:#a78bfa;font-weight:600;">🥂 Incluye 1 copa, 2 refrescos o 2 cervezas</p>
+                </div>
+
+                <!-- ④ LÍNEA DE CORTE -->
+                <div style="position:relative;z-index:2;display:flex;align-items:center;height:26px;padding:0 0;">
+                    <div style="width:13px;height:13px;border-radius:50%;background:#08040f;flex-shrink:0;margin-left:-7px;"></div>
+                    <div style="flex:1;border-top:1.5px dashed rgba(255,255,255,0.1);"></div>
+                    <span style="font-size:7px;letter-spacing:2px;color:#1e293b;flex-shrink:0;padding:0 8px;">✂</span>
+                    <div style="flex:1;border-top:1.5px dashed rgba(255,255,255,0.1);"></div>
+                    <div style="width:13px;height:13px;border-radius:50%;background:#08040f;flex-shrink:0;margin-right:-7px;"></div>
+                </div>
+
+                <!-- ⑤ ASISTENTE -->
+                <div style="position:relative;z-index:2;padding:14px 22px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <!-- Nº + Tipo + Pagado -->
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+                        <div>
+                            <p style="font-size:8px;letter-spacing:3px;color:#334155;text-transform:uppercase;margin-bottom:1px;">N.° de entrada</p>
+                            <p id="tk-numero" style="font-size:36px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 18px rgba(244,211,63,0.35);">—</p>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px;">
+                            <p id="tk-tipo"   style="font-size:11px;font-weight:700;color:#cbd5e1;text-align:right;">—</p>
+                            <p id="tk-precio" style="font-size:18px;font-weight:900;color:#f4d03f;line-height:1;">—</p>
+                            <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:0.5px;">—</span>
+                        </div>
+                    </div>
+                    <!-- Nombre -->
+                    <p id="tk-nombre"    style="font-size:20px;font-weight:800;color:white;line-height:1.15;margin-bottom:1px;">—</p>
+                    <p id="tk-apellidos" style="font-size:14px;font-weight:600;color:#64748b;margin-bottom:7px;"></p>
+                    <!-- Contacto -->
+                    <div style="display:flex;align-items:center;gap:5px;">
+                        <span style="font-size:10px;">📱</span>
+                        <p id="tk-contacto" style="font-size:12px;font-weight:600;color:#94a3b8;letter-spacing:0.5px;">—</p>
+                    </div>
+                </div>
+
+                <!-- ⑥ ZONA QR -->
+                <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 22px 16px;flex:1;">
+                    <div id="tk-qr-container" style="padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:7px;"></div>
+                    <p style="font-size:7px;letter-spacing:3px;color:#1e293b;text-transform:uppercase;">Escanear para verificar entrada</p>
+                </div>
+
+                <!-- ⑦ FRANJA BOT -->
+                <div id="tk-stripe-bot" style="height:8px;flex-shrink:0;position:relative;z-index:2;background:linear-gradient(90deg,#c8102e 0%,#c8102e 30%,#f4d03f 45%,#f4d03f 55%,#c8102e 70%,#c8102e 100%);"></div>
             </div>
             <!-- Botones -->
             <div class="flex gap-3 flex-wrap justify-center">
@@ -910,48 +892,77 @@
                 pagadoEl.style.border = '1px solid rgba(244,63,94,0.4)';
                 pagadoEl.style.color = '#fb7185';
             }
-            // Apply event-specific colors and details
+            // Colores del evento
             const ev = activeEvento;
             const c = ev.color;
-            const r = parseInt(c.slice(1,3),16), g2 = parseInt(c.slice(3,5),16), b2 = parseInt(c.slice(5,7),16);
-            const rgba = (a) => `rgba(${r},${g2},${b2},${a})`;
-            const sg = `linear-gradient(90deg,${c} 0%,${c} 25%,#f4d03f 40%,#f4d03f 60%,${c} 75%,${c} 100%)`;
+            const rC = parseInt(c.slice(1,3),16), gC = parseInt(c.slice(3,5),16), bC = parseInt(c.slice(5,7),16);
+            const rgba = (a) => `rgba(${rC},${gC},${bC},${a})`;
+            const sg = `linear-gradient(90deg,${c} 0%,${c} 30%,#f4d03f 45%,#f4d03f 55%,${c} 70%,${c} 100%)`;
             document.getElementById('ticket-card').style.background =
-                `linear-gradient(170deg,${rgba(0.32)} 0%,${rgba(0.14)} 38%,#080612 100%)`;
+                `linear-gradient(160deg,${rgba(0.28)} 0%,${rgba(0.10)} 40%,#08040f 100%)`;
             document.getElementById('tk-stripe-top').style.background = sg;
             document.getElementById('tk-stripe-bot').style.background = sg;
-            document.getElementById('tk-circle-accent').style.background = `radial-gradient(circle,${rgba(0.18)} 0%,transparent 70%)`;
-            document.getElementById('tk-event-nombre').textContent = ev.nombre;
-            document.getElementById('tk-event-lugar').textContent = '📍 ' + ev.lugar;
-            document.getElementById('tk-event-dir').textContent = ev.direccion;
-            document.getElementById('tk-event-fecha').textContent = '📅 ' + ev.fechaTexto;
-            document.getElementById('tk-event-hora').textContent = '🕐 ' + ev.hora + ' h';
+            document.getElementById('tk-circle-accent').style.background = `radial-gradient(circle,${rgba(0.22)} 0%,transparent 65%)`;
+            document.getElementById('tk-circle-2').style.background      = `radial-gradient(circle,${rgba(0.12)} 0%,transparent 65%)`;
+            const logoK = document.getElementById('tk-logo-k');
+            if (logoK) logoK.style.color = c;
+            // Datos del evento
+            document.getElementById('tk-event-nombre').textContent      = ev.nombre;
+            document.getElementById('tk-event-lugar').textContent       = '📍 ' + ev.lugar;
+            document.getElementById('tk-event-dir').textContent         = ev.direccion;
+            document.getElementById('tk-event-fecha').textContent       = '📅 ' + ev.fechaTexto;
+            document.getElementById('tk-event-hora').textContent        = '🕐 ' + ev.hora;
             document.getElementById('tk-event-consumicion').textContent = '🥂 ' + ev.consumicion;
-            // Mostrar modal primero (el QR no puede bloquear la apertura)
+            // Abrir modal
             const modal = document.getElementById('ticket-modal');
             modal.classList.remove('hidden');
             lucide.createIcons({ root: modal });
-            // QR code (no bloquea si la librería no carga)
+            // QR (no bloquea si la librería falla)
             try {
                 const qrWrap = document.getElementById('tk-qr-container');
                 qrWrap.innerHTML = '';
-                const qrText = `AKISEMBA | ${ev.nombre} | N.${t.numero} | ${t.nombre}${t.apellidos ? ' ' + t.apellidos : ''} | ${t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta'} | ${t.pagado ? 'PAGADO' : 'PENDIENTE'}`;
-                new QRCode(qrWrap, { text: qrText, width: 100, height: 100, colorDark: '#ffffff', colorLight: '#08080f', correctLevel: QRCode.CorrectLevel.M });
+                const qrText = `AKISEMBA|${ev.nombre}|N.${t.numero}|${t.nombre}${t.apellidos?' '+t.apellidos:''}|${t.tipo==='anticipada'?'Anticipada':'Puerta'}|${t.pagado?'PAGADO':'PENDIENTE'}`;
+                new QRCode(qrWrap, { text: qrText, width: 130, height: 130, colorDark: '#ffffff', colorLight: '#08040f', correctLevel: QRCode.CorrectLevel.M });
             } catch(e) {
-                document.getElementById('tk-qr-container').innerHTML = '<p style="color:#475569;font-size:9px;padding:4px 8px;text-align:center;">QR no disponible</p>';
+                document.getElementById('tk-qr-container').innerHTML = '<p style="color:#334155;font-size:9px;padding:8px;">QR no disponible</p>';
             }
         };
         window.closeTicket = () => document.getElementById('ticket-modal').classList.add('hidden');
-        window.whatsappTicket = () => {
+        window.whatsappTicket = async () => {
             const t = window._currentTicket;
             if (!t) return;
-            const url = whatsappUrl(t.contacto);
-            if (!url) return showToast('Este registro no tiene un número de WhatsApp válido', 'error');
-            const tipo = t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta';
-            const estado = t.pagado ? '✅ PAGADO' : '⏳ Pendiente de pago';
-            const ev = activeEvento;
-            const msg = `Hola ${t.nombre}, aquí tienes tu entrada para *${ev.nombre}* 🎉\n\n🎟 *Entrada Nº ${t.numero}*\n👤 ${t.nombre}${t.apellidos ? ' ' + t.apellidos : ''}\n\n📅 ${ev.fechaTexto}\n🕐 ${ev.hora} h\n📍 ${ev.lugar} · ${ev.direccion}\n\n🎫 Tipo: ${tipo} · 💶 Precio: ${t.precio} €\n${estado}\n\n🥂 _${ev.consumicion}_\n\n¡Te esperamos! 💃🕺`;
-            window.open(url + '?text=' + encodeURIComponent(msg), '_blank');
+            const card = document.getElementById('ticket-card');
+            try {
+                showToast('Generando imagen...');
+                const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: null });
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `ticket-akisemba-${t.numero}.png`, { type: 'image/png' });
+                    const canShareFile = navigator.share && navigator.canShare && navigator.canShare({ files: [file] });
+                    if (canShareFile) {
+                        try {
+                            await navigator.share({ files: [file], title: `Entrada Nº ${t.numero} — ${activeEvento.nombre}` });
+                        } catch(e) {
+                            if (e.name !== 'AbortError') showToast('No se pudo compartir', 'error');
+                        }
+                    } else {
+                        // Fallback: abrir WhatsApp con texto + descargar imagen
+                        const waUrl = whatsappUrl(t.contacto);
+                        const tipo = t.tipo === 'anticipada' ? 'Anticipada' : 'Puerta';
+                        const estado = t.pagado ? '✅ PAGADO' : '⏳ Pendiente de pago';
+                        const ev = activeEvento;
+                        const msg = `Hola ${t.nombre}, aquí tienes tu entrada para *${ev.nombre}* 🎉\n🎟 *Entrada Nº ${t.numero}* · ${tipo} · ${t.precio}€\n${estado}\n📅 ${ev.fechaTexto} · 🕐 ${ev.hora}\n📍 ${ev.lugar}`;
+                        if (waUrl) window.open(waUrl + '?text=' + encodeURIComponent(msg), '_blank');
+                        // Descargar la imagen para adjuntarla manualmente
+                        const dlUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = dlUrl; a.download = file.name; a.click();
+                        URL.revokeObjectURL(dlUrl);
+                        showToast('Se ha descargado la imagen. Adjúntala en WhatsApp.');
+                    }
+                }, 'image/png');
+            } catch(e) {
+                if (e.name !== 'AbortError') showToast('No se pudo generar la imagen', 'error');
+            }
         };
         document.getElementById('ticket-modal').addEventListener('click', function(e) {
             if (e.target === this) closeTicket();
