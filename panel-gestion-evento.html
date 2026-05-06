@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
         input[type="number"]::-webkit-inner-spin-button,
@@ -306,18 +306,16 @@
                 <div style="height:1px;background:linear-gradient(90deg,transparent,#f4d03f80,transparent);position:relative;z-index:2;"></div>
 
                 <!-- ③ DATOS DEL EVENTO -->
-                <div style="position:relative;z-index:2;padding:11px 22px 11px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                <div style="position:relative;z-index:2;padding:11px 22px 11px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:center;">
                     <p id="tk-event-lugar" style="font-size:12px;font-weight:700;color:white;margin-bottom:1px;">📍 Club Enchufla</p>
                     <p id="tk-event-dir"   style="font-size:9px;color:#475569;margin-bottom:7px;">C/ Cerro de la Alcazaba, 38 · 28053 Madrid</p>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-                        <p id="tk-event-fecha" style="font-size:12px;font-weight:800;color:#f4d03f;">📅 Sábado 11 de abril de 2026</p>
-                        <p id="tk-event-hora"  style="font-size:11px;font-weight:600;color:#e2e8f0;">🕐 23:30–03:30</p>
-                    </div>
+                    <p id="tk-event-fecha" style="font-size:12px;font-weight:800;color:#f4d03f;margin-bottom:3px;">📅 Sábado 11 de abril de 2026</p>
+                    <p id="tk-event-hora"  style="font-size:11px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">🕐 23:30 — 03:30 h</p>
                     <p id="tk-event-consumicion" style="font-size:9px;color:#a78bfa;font-weight:600;">🥂 Incluye 1 copa, 2 refrescos o 2 cervezas</p>
                 </div>
 
                 <!-- ④ LÍNEA DE CORTE -->
-                <div style="position:relative;z-index:2;display:flex;align-items:center;height:26px;padding:0 0;">
+                <div style="position:relative;z-index:2;display:flex;align-items:center;height:26px;">
                     <div style="width:13px;height:13px;border-radius:50%;background:#08040f;flex-shrink:0;margin-left:-7px;"></div>
                     <div style="flex:1;border-top:1.5px dashed rgba(255,255,255,0.1);"></div>
                     <span style="font-size:7px;letter-spacing:2px;color:#1e293b;flex-shrink:0;padding:0 8px;">✂</span>
@@ -326,26 +324,24 @@
                 </div>
 
                 <!-- ⑤ ASISTENTE -->
-                <div style="position:relative;z-index:2;padding:14px 22px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">
-                    <!-- Nº + Tipo + Pagado -->
-                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
-                        <div>
-                            <p style="font-size:8px;letter-spacing:3px;color:#334155;text-transform:uppercase;margin-bottom:1px;">N.° de entrada</p>
-                            <p id="tk-numero" style="font-size:36px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 18px rgba(244,211,63,0.35);">—</p>
-                        </div>
-                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px;">
-                            <p id="tk-tipo"   style="font-size:11px;font-weight:700;color:#cbd5e1;text-align:right;">—</p>
-                            <p id="tk-precio" style="font-size:18px;font-weight:900;color:#f4d03f;line-height:1;">—</p>
-                            <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:0.5px;">—</span>
-                        </div>
-                    </div>
+                <div style="position:relative;z-index:2;padding:14px 22px 14px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:center;">
+                    <!-- Nº de entrada -->
+                    <p style="font-size:8px;letter-spacing:3px;color:#334155;text-transform:uppercase;margin-bottom:2px;">N.° de entrada</p>
+                    <p id="tk-numero" style="font-size:36px;font-weight:900;color:#f4d03f;line-height:1;text-shadow:0 0 18px rgba(244,211,63,0.35);margin-bottom:10px;">—</p>
                     <!-- Nombre -->
-                    <p id="tk-nombre"    style="font-size:20px;font-weight:800;color:white;line-height:1.15;margin-bottom:1px;">—</p>
+                    <p id="tk-nombre"    style="font-size:20px;font-weight:800;color:white;line-height:1.15;margin-bottom:2px;">—</p>
                     <p id="tk-apellidos" style="font-size:14px;font-weight:600;color:#64748b;margin-bottom:7px;"></p>
                     <!-- Contacto -->
-                    <div style="display:flex;align-items:center;gap:5px;">
-                        <span style="font-size:10px;">📱</span>
-                        <p id="tk-contacto" style="font-size:12px;font-weight:600;color:#94a3b8;letter-spacing:0.5px;">—</p>
+                    <p id="tk-contacto" style="font-size:12px;font-weight:600;color:#94a3b8;letter-spacing:0.5px;margin-bottom:12px;">—</p>
+                    <!-- Tipo + Precio -->
+                    <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:10px;">
+                        <p id="tk-tipo"   style="font-size:11px;font-weight:700;color:#cbd5e1;">—</p>
+                        <span style="color:#334155;font-size:14px;">·</span>
+                        <p id="tk-precio" style="font-size:16px;font-weight:900;color:#f4d03f;">—</p>
+                    </div>
+                    <!-- Pagado (separado) -->
+                    <div>
+                        <span id="tk-pagado" style="display:inline-flex;align-items:center;gap:5px;padding:5px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:0.5px;">—</span>
                     </div>
                 </div>
 
