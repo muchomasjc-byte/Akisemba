@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aquiles vs Leónidas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0b0906;font-family:'Crimson Text',Georgia,serif;color:#e8d5a0;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.4rem 1rem 2.5rem}
+    h1{font-family:'Cinzel',serif;font-size:clamp(1.4rem,5vw,2.4rem);color:#d4af37;letter-spacing:.16em;text-shadow:0 2px 20px rgba(212,175,55,.4);margin-bottom:.25rem;text-align:center}
+    .subtitle{font-style:italic;color:rgba(232,213,160,.45);font-size:.88rem;letter-spacing:.06em;margin-bottom:1.2rem;text-align:center}
+
+    /* HUD */
+    .hud{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;align-items:center;width:100%;max-width:840px;margin-bottom:.5rem}
+    .fhud{display:flex;flex-direction:column;gap:.28rem}
+    .fhud.right{align-items:flex-end;text-align:right}
+    .fname{font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.12em;color:#d4af37}
+    .hp-track{width:100%;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;border:1px solid rgba(212,175,55,.18)}
+    .hp-fill{height:100%;border-radius:4px;transition:width .45s ease}
+    #hp-aq-fill{background:linear-gradient(90deg,#7a1a1a,#c93030,#e05555);width:100%}
+    #hp-le-fill{background:linear-gradient(90deg,#003a7a,#1050b0,#3070d0);width:100%}
+    .hp-txt{font-size:.7rem;color:rgba(232,213,160,.55);font-variant-numeric:tabular-nums}
+    .vs{font-family:'Cinzel',serif;font-size:1rem;color:rgba(212,175,55,.55);letter-spacing:.1em}
+
+    /* Canvas */
+    #arena{border:1px solid rgba(212,175,55,.18);border-radius:3px;max-width:100%;display:block}
+
+    /* Log */
+    #log-wrap{width:100%;max-width:840px;margin-top:.9rem;background:rgba(0,0,0,.45);border:1px solid rgba(212,175,55,.13);border-radius:3px;max-height:185px;overflow-y:auto;padding:.65rem .9rem}
+    .le{font-size:.88rem;line-height:1.65;border-bottom:1px solid rgba(212,175,55,.07);padding:.15rem 0;opacity:0;animation:fin .3s ease forwards}
+    .le:last-child{border-bottom:none}
+    .le.hit{color:#e07575}
+    .le.parry{color:#7090d8}
+    .le.miss{color:rgba(232,213,160,.48)}
+    .le.death{color:#d4af37;font-style:italic}
+    .le.sys{color:rgba(232,213,160,.38);font-style:italic}
+    @keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Button */
+    #btn{margin-top:1rem;padding:.65rem 2.2rem;font-family:'Cinzel',serif;font-size:.83rem;letter-spacing:.2em;text-transform:uppercase;background:linear-gradient(135deg,#c09020,#d4af37);color:#0b0906;border:none;border-radius:3px;cursor:pointer;transition:opacity .2s,transform .1s}
+    #btn:hover{opacity:.88}
+    #btn:active{transform:scale(.98)}
+    #btn:disabled{opacity:.38;cursor:not-allowed}
+
+    @media(max-width:480px){.hp-txt{font-size:.62rem}.fname{font-size:.7rem}}
+  </style>
+</head>
+<body>
+<h1>⚔ AQUILES VS LEÓNIDAS ⚔</h1>
+<div class="subtitle">Coliseo de los Inmortales · Arena de Bronce</div>
+
+<div class="hud">
+  <div class="fhud">
+    <span class="fname">AQUILES</span>
+    <div class="hp-track"><div class="hp-fill" id="hp-aq-fill"></div></div>
+    <span class="hp-txt" id="hp-aq-txt">100 / 100</span>
+  </div>
+  <div class="vs">VS</div>
+  <div class="fhud right">
+    <span class="fname">LEÓNIDAS</span>
+    <div class="hp-track"><div class="hp-fill" id="hp-le-fill"></div></div>
+    <span class="hp-txt" id="hp-le-txt">100 / 100</span>
+  </div>
+</div>
+
+<canvas id="arena" width="840" height="370"></canvas>
+
+<div id="log-wrap">
+  <div class="le sys">— El duelo aún no ha comenzado. Pulsa el botón para iniciar. —</div>
+</div>
+
+<button id="btn">⚔ Iniciar Duelo</button>
+
+<script>
+'use strict';
+
+// ─── prefers-reduced-motion ───────────────────────────────────────────────────
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ─── canvas ──────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('arena');
+const ctx    = canvas.getContext('2d');
+const CW = 840, CH = 370, GROUND_Y = 278;
+const AQ_BX = 205, LE_BX = 635;   // base x positions
+
+// ─── segment lengths (px) ────────────────────────────────────────────────────
+const SEG = {
+  torso:52, head:11,
+  waU:30, waF:26,   // weapon arm upper / forearm
+  saU:28, saF:24,   // shield arm upper / forearm
+  thigh:38, shin:33
+};
+
+// ─── POSES ───────────────────────────────────────────────────────────────────
+// Defined for a right-facing fighter.
+// Angles: 0 = east, π/2 = south (canvas y-down coords).
+// lean: torso tilt (+toward enemy, −away).
+// waU/waF: weapon arm upper / forearm offset.
+// saU/saF: shield arm upper / forearm offset.
+// ftQ/ftS: front thigh / shin offset.  bkQ/bkS: back thigh / shin offset.
+// xOff: horizontal shift toward opponent during the pose.
+const π = Math.PI;
+const POSES = {
+  idle:{
+    lean:0,
+    waU:-π*.55, waF:.75,
+    saU:π+.30,  saF:-.60,
+    ftQ:π/2+.12, ftS:-.35,
+    bkQ:π/2-.15, bkS:.38,
+    xOff:0
+  },
+  anticipacion:{
+    lean:-.22,
+    waU:π-.25, waF:.45,
+    saU:π+.20, saF:-.50,
+    ftQ:π/2+.30, ftS:-.55,
+    bkQ:π/2-.38, bkS:.45,
+    xOff:-12
+  },
+  ataque:{
+    lean:.28,
+    waU:-.32, waF:.38,
+    saU:π+.50, saF:-.42,
+    ftQ:π/2+.52, ftS:-.72,
+    bkQ:π/2-.52, bkS:.62,
+    xOff:28
+  },
+  impacto:{
+    lean:-.46,
+    waU:π/2+.35, waF:.55,
+    saU:π/2+.15, saF:.30,
+    ftQ:π/2+.08, ftS:-.20,
+    bkQ:π/2-.28, bkS:.35,
+    xOff:-22
+  },
+  parada:{
+    lean:.10,
+    waU:-.15, waF:.50,
+    saU:π+.65, saF:-π/2+.10,
+    ftQ:π/2+.38, ftS:-.52,
+    bkQ:π/2-.42, bkS:.52,
+    xOff:0
+  },
+  esquiva:{
+    lean:.16,
+    waU:-π*.52, waF:.70,
+    saU:π+.35,  saF:-.55,
+    ftQ:π/2+.14, ftS:-.38,
+    bkQ:π/2-.28, bkS:.42,
+    xOff:-8
+  },
+  caida:{
+    lean:.95,
+    waU:π/2+.60, waF:.75,
+    saU:π/2+.28, saF:.50,
+    ftQ:π/2+.70, ftS:-1.05,
+    bkQ:π/2-.12, bkS:.88,
+    xOff:8
+  }
+};
+
+const POSE_KEYS = Object.keys(POSES.idle);
+
+function clonePose(p){ return {...p}; }
+
+// ─── easing ──────────────────────────────────────────────────────────────────
+function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+
+// ─── COMBAT ENGINE ───────────────────────────────────────────────────────────
+function mkFighter(name,hp,atq,def,vel){
+  return {name,hp,maxHp:hp,atq,def,vel};
+}
+
+function resolveTurn(att,def){
+  if(Math.random()*100 > att.atq) return {result:'miss',damage:0};
+  if(Math.random()*100 < def.def*.55) return {result:'parry',damage:0};
+  const dmg = Math.round(10 + Math.random()*(att.atq*.18));
+  return {result:'hit',damage:dmg};
+}
+
+function fmtLog(att,def,out){
+  if(out.result==='hit')   return `⚔ ${att.name} golpea a ${def.name} — ${out.damage} de daño.`;
+  if(out.result==='parry') return `🛡 ${def.name} para el ataque de ${att.name}.`;
+  return `💨 ${att.name} ataca pero ${def.name} lo esquiva.`;
+}
+
+function runDuel(){
+  const aq = mkFighter('Aquiles', 100, 85, 60, 80);
+  const le = mkFighter('Leónidas',100, 70, 90, 65);
+  const events = [];
+  let turn = 0;
+
+  while(aq.hp>0 && le.hp>0 && turn<30){
+    const aqFirst = Math.random()*100 < aq.vel;
+    const order   = aqFirst ? [[aq,le],[le,aq]] : [[le,aq],[aq,le]];
+
+    for(const [att,def] of order){
+      if(att.hp<=0 || def.hp<=0) break;
+      const out = resolveTurn(att,def);
+      if(out.result==='hit') def.hp = Math.max(0, def.hp-out.damage);
+      events.push({
+        type:'turn',
+        attacker:att.name, defender:def.name,
+        result:out.result, damage:out.damage,
+        aqHp:aq.hp, leHp:le.hp,
+        log:fmtLog(att,def,out)
+      });
+      if(def.hp<=0){
+        events.push({type:'death', fallen:def.name, winner:att.name});
+        break;
+      }
+    }
+    if(aq.hp<=0 || le.hp<=0) break;
+    turn++;
+  }
+
+  if(aq.hp>0 && le.hp>0)
+    events.push({type:'draw', log:'El combate termina en tablas — ambos guerreros agotados.'});
+
+  return events;
+}
+
+// ─── ANIMATION STATE ─────────────────────────────────────────────────────────
+function mkAnim(baseX, dir){
+  return {
+    baseX, dir,
+    curX: baseX,
+    from: clonePose(POSES.idle),
+    to:   clonePose(POSES.idle),
+    cur:  clonePose(POSES.idle),
+    t: 1, dur: 0, stepStart: 0,
+    queue: [],
+    alive: true,
+    breathPhase: Math.random()*π*2
+  };
+}
+
+function lerpPose(from, to, t){
+  const out = {};
+  for(const k of POSE_KEYS) out[k] = from[k]+(to[k]-from[k])*t;
+  return out;
+}
+
+function pushPose(anim, name, dur){
+  anim.queue.push({name, dur});
+}
+
+function startNext(anim, now){
+  if(!anim.queue.length) return;
+  const step = anim.queue.shift();
+  anim.from  = clonePose(anim.cur);
+  anim.to    = clonePose(POSES[step.name]);
+  anim.dur   = step.dur;
+  anim.stepStart = now;
+  anim.t     = REDUCED ? 1 : 0;
+  if(REDUCED) anim.cur = clonePose(anim.to);
+}
+
+function updateAnim(anim, now){
+  if(anim.t < 1){
+    const raw = Math.min((now - anim.stepStart)/anim.dur, 1);
+    anim.t = easeOutCubic(raw);
+    anim.cur = lerpPose(anim.from, anim.to, anim.t);
+    if(raw>=1){ anim.cur = clonePose(anim.to); anim.t=1; }
+  }
+  if(anim.t>=1 && anim.queue.length) startNext(anim, now);
+  // live x position: xOff is positive = toward opponent
+  anim.curX = anim.baseX + (anim.dir>0 ? anim.cur.xOff : -anim.cur.xOff);
+}
+
+function applyBreath(anim){
+  if(!anim.alive || REDUCED) return;
+  if(anim.queue.length || anim.t<1) return;
+  anim.breathPhase += .018;
+  const b = Math.sin(anim.breathPhase*1.3)*.024;
+  anim.cur.lean = POSES.idle.lean + b;
+  anim.cur.waU  = POSES.idle.waU  + b*.5;
+  anim.cur.ftQ  = POSES.idle.ftQ  + b*.2;
+}
+
+// ─── DRAWING ─────────────────────────────────────────────────────────────────
+function seg(x,y,angle,len){
+  const ex=x+Math.cos(angle)*len, ey=y+Math.sin(angle)*len;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(ex,ey); ctx.stroke();
+  return [ex,ey];
+}
+
+function drawFighter(anim, cfg){
+  const sk=anim.cur, x=anim.curX, y=GROUND_Y;
+  ctx.save();
+  ctx.translate(x,y);
+  if(anim.dir<0) ctx.scale(-1,1);
+  ctx.lineCap='round'; ctx.lineJoin='round';
+
+  const ta = -π/2+sk.lean;              // torso angle
+  const sx = Math.cos(ta)*SEG.torso;    // shoulder relative to hip
+  const sy = Math.sin(ta)*SEG.torso;
+
+  // back leg
+  ctx.strokeStyle=cfg.body; ctx.lineWidth=5;
+  const [bkX,bkY]=seg(0,0,sk.bkQ,SEG.thigh);
+  seg(bkX,bkY,sk.bkQ+sk.bkS,SEG.shin);
+
+  // shield arm
+  ctx.lineWidth=4;
+  const [saX,saY]=seg(sx,sy,sk.saU,SEG.saU);
+  const [shX,shY]=seg(saX,saY,sk.saU+sk.saF,SEG.saF);
+
+  if(cfg.shield){
+    ctx.beginPath(); ctx.arc(shX,shY,14,0,π*2);
+    ctx.fillStyle=cfg.shieldFill; ctx.fill();
+    ctx.strokeStyle=cfg.shieldRim; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(shX,shY,4,0,π*2);
+    ctx.fillStyle=cfg.shieldRim; ctx.fill();
+  }
+
+  // torso
+  ctx.strokeStyle=cfg.body; ctx.lineWidth=7;
+  seg(0,0,ta,SEG.torso);
+
+  // head
+  const hx=sx+Math.cos(ta)*8, hy=sy+Math.sin(ta)*8;
+  ctx.beginPath(); ctx.arc(hx,hy,SEG.head,0,π*2);
+  ctx.fillStyle=cfg.skin; ctx.fill();
+  ctx.strokeStyle=cfg.body; ctx.lineWidth=2.5; ctx.stroke();
+
+  // helmet
+  ctx.beginPath(); ctx.arc(hx,hy,SEG.head+2,π,0);
+  ctx.fillStyle=cfg.helm; ctx.fill();
+  ctx.strokeStyle=cfg.helmRim; ctx.lineWidth=1.5; ctx.stroke();
+  if(cfg.crest){
+    ctx.beginPath();
+    ctx.moveTo(hx-6, hy-SEG.head-1);
+    ctx.bezierCurveTo(hx,hy-SEG.head-20, hx+14,hy-SEG.head-16, hx+18,hy-SEG.head-2);
+    ctx.fillStyle=cfg.crest; ctx.fill();
+  }
+
+  // front leg
+  ctx.strokeStyle=cfg.body; ctx.lineWidth=5;
+  const [ftX,ftY]=seg(0,0,sk.ftQ,SEG.thigh);
+  seg(ftX,ftY,sk.ftQ+sk.ftS,SEG.shin);
+
+  // weapon arm
+  ctx.lineWidth=4;
+  const [waX,waY]=seg(sx,sy,sk.waU,SEG.waU);
+  const [wfX,wfY]=seg(waX,waY,sk.waU+sk.waF,SEG.waF);
+
+  const wa = sk.waU+sk.waF;  // weapon direction angle
+  if(cfg.weapon==='spear'){
+    // shaft
+    ctx.beginPath();
+    ctx.moveTo(wfX-Math.cos(wa)*18, wfY-Math.sin(wa)*18);
+    ctx.lineTo(wfX+Math.cos(wa)*65, wfY+Math.sin(wa)*65);
+    ctx.strokeStyle='#8b6c3a'; ctx.lineWidth=3.5; ctx.stroke();
+    // head triangle
+    const tipX=wfX+Math.cos(wa)*65, tipY=wfY+Math.sin(wa)*65;
+    const pa=wa+π/2;
+    ctx.beginPath();
+    ctx.moveTo(tipX+Math.cos(wa)*15, tipY+Math.sin(wa)*15);
+    ctx.lineTo(tipX+Math.cos(pa)*5,  tipY+Math.sin(pa)*5);
+    ctx.lineTo(tipX-Math.cos(pa)*5,  tipY-Math.sin(pa)*5);
+    ctx.closePath();
+    ctx.fillStyle='#b0b8c0'; ctx.fill();
+    ctx.strokeStyle='#808898'; ctx.lineWidth=1; ctx.stroke();
+  } else {
+    // sword blade
+    ctx.beginPath();
+    ctx.moveTo(wfX,wfY);
+    ctx.lineTo(wfX+Math.cos(wa)*42, wfY+Math.sin(wa)*42);
+    ctx.strokeStyle='#b8c0c8'; ctx.lineWidth=4; ctx.stroke();
+    // guard
+    const gx=wfX+Math.cos(wa)*9, gy=wfY+Math.sin(wa)*9, pa=wa+π/2;
+    ctx.beginPath();
+    ctx.moveTo(gx+Math.cos(pa)*9, gy+Math.sin(pa)*9);
+    ctx.lineTo(gx-Math.cos(pa)*9, gy-Math.sin(pa)*9);
+    ctx.strokeStyle='#8b7040'; ctx.lineWidth=3; ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+const CFG_AQ = {
+  dir:1, body:'#c8a040', skin:'#c8906a',
+  helm:'#8a7a50', helmRim:'#b09060', crest:null,
+  shield:false, weapon:'spear'
+};
+const CFG_LE = {
+  dir:-1, body:'#3060a0', skin:'#b07055',
+  helm:'#404040', helmRim:'#606060', crest:'#cc2020',
+  shield:true, shieldFill:'#2a4870', shieldRim:'#4060a0', weapon:'sword'
+};
+
+// clash particle effect
+const clash = {active:false, x:0, y:0, startTime:0, dur:450, type:'hit'};
+
+function triggerClash(x,y,type){
+  clash.active=true; clash.x=x; clash.y=y;
+  clash.type=type; clash.startTime=performance.now();
+}
+
+function drawClash(){
+  if(!clash.active) return;
+  const t=Math.min((performance.now()-clash.startTime)/clash.dur,1);
+  if(t>=1){ clash.active=false; return; }
+  const alpha=(1-t)*.85, r=8+t*42;
+  ctx.save(); ctx.globalAlpha=alpha;
+  if(clash.type==='hit'){
+    const g=ctx.createRadialGradient(clash.x,clash.y,0,clash.x,clash.y,r);
+    g.addColorStop(0,'rgba(255,210,40,.9)');
+    g.addColorStop(.5,'rgba(255,100,20,.4)');
+    g.addColorStop(1,'rgba(255,50,0,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(clash.x,clash.y,r,0,π*2); ctx.fill();
+    for(let i=0;i<8;i++){
+      const a=(i/8)*π*2, sl=(.4+.6*(i%3/3))*r;
+      ctx.strokeStyle=`rgba(255,200,50,${alpha})`;
+      ctx.lineWidth=1.5; ctx.beginPath();
+      ctx.moveTo(clash.x+Math.cos(a)*6,clash.y+Math.sin(a)*6);
+      ctx.lineTo(clash.x+Math.cos(a)*sl,clash.y+Math.sin(a)*sl);
+      ctx.stroke();
+    }
+  } else if(clash.type==='parry'){
+    const g=ctx.createRadialGradient(clash.x,clash.y,0,clash.x,clash.y,r);
+    g.addColorStop(0,'rgba(140,190,255,.8)');
+    g.addColorStop(1,'rgba(50,100,200,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(clash.x,clash.y,r,0,π*2); ctx.fill();
+  } else {
+    ctx.strokeStyle=`rgba(200,200,200,${alpha*.4})`; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(clash.x,clash.y,r*.6,-0.5,0.5); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawScene(animAq, animLe){
+  // sky
+  const sky=ctx.createLinearGradient(0,0,0,GROUND_Y);
+  sky.addColorStop(0,'#07040e'); sky.addColorStop(1,'#13100c');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,CW,CH);
+
+  // background pillars
+  ctx.save(); ctx.globalAlpha=.10; ctx.strokeStyle='#d4af37';
+  [75,330,510,765].forEach(px=>{
+    ctx.lineWidth=11;
+    ctx.beginPath(); ctx.moveTo(px,25); ctx.lineTo(px,GROUND_Y+12); ctx.stroke();
+    ctx.lineWidth=5;
+    ctx.beginPath(); ctx.moveTo(px-17,25); ctx.lineTo(px+17,25); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px-14,GROUND_Y+12); ctx.lineTo(px+14,GROUND_Y+12); ctx.stroke();
+  });
+  ctx.restore();
+
+  // ground
+  ctx.fillStyle='#221a0e'; ctx.fillRect(0,GROUND_Y+12,CW,CH-GROUND_Y-12);
+  const edge=ctx.createLinearGradient(0,GROUND_Y+12,0,GROUND_Y+28);
+  edge.addColorStop(0,'rgba(212,175,55,.22)'); edge.addColorStop(1,'transparent');
+  ctx.fillStyle=edge; ctx.fillRect(0,GROUND_Y+12,CW,16);
+
+  // shadows
+  [animAq.curX, animLe.curX].forEach(bx=>{
+    ctx.save(); ctx.translate(bx, GROUND_Y+20);
+    const sg=ctx.createRadialGradient(0,0,4,0,0,55);
+    sg.addColorStop(0,'rgba(0,0,0,.42)'); sg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=sg; ctx.scale(1.6,.35);
+    ctx.beginPath(); ctx.arc(0,0,55,0,π*2); ctx.fill();
+    ctx.restore();
+  });
+
+  drawFighter(animAq, CFG_AQ);
+  drawFighter(animLe, CFG_LE);
+  drawClash();
+}
+
+// ─── LOG ─────────────────────────────────────────────────────────────────────
+const logWrap = document.getElementById('log-wrap');
+function addLog(text,cls){
+  const d=document.createElement('div');
+  d.className='le '+(cls||'');
+  d.textContent=text;
+  logWrap.appendChild(d);
+  logWrap.scrollTop=logWrap.scrollHeight;
+}
+function clearLog(){ logWrap.innerHTML=''; }
+
+// ─── HP HUD ──────────────────────────────────────────────────────────────────
+function updateHP(aqHp,leHp){
+  document.getElementById('hp-aq-fill').style.width=Math.max(0,aqHp)+'%';
+  document.getElementById('hp-le-fill').style.width=Math.max(0,leHp)+'%';
+  document.getElementById('hp-aq-txt').textContent=Math.max(0,aqHp)+' / 100';
+  document.getElementById('hp-le-txt').textContent=Math.max(0,leHp)+' / 100';
+}
+
+// ─── MAIN LOOP ───────────────────────────────────────────────────────────────
+let animAq, animLe, dueling=false;
+
+function initAnims(){
+  animAq = mkAnim(AQ_BX, 1);
+  animLe = mkAnim(LE_BX,-1);
+}
+
+(function loop(now){
+  requestAnimationFrame(loop);
+  animAq.breathPhase+=.018;
+  animLe.breathPhase+=.018;
+  updateAnim(animAq,now);
+  updateAnim(animLe,now);
+  if(!dueling){ applyBreath(animAq); applyBreath(animLe); }
+  drawScene(animAq,animLe);
+})();
+
+// ─── SEQUENCER ───────────────────────────────────────────────────────────────
+// Timing per turn: 2400 ms total
+//   0–420 ms  : attacker anticipacion
+//   420–900 ms: attacker ataque
+//   450 ms    : defender starts reacting
+//   900 ms    : log appears, HP updates, clash fires
+//   900–1650 ms: both return to idle
+//   2400 ms   : next turn
+const TURN_DUR = 2400;
+const LOG_AT   = 900;
+const DEF_LAG  = 450;
+
+function playEvents(events){
+  dueling=true;
+  const btn=document.getElementById('btn');
+  btn.disabled=true;
+  clearLog();
+  addLog('— El duelo comienza… —','sys');
+
+  let i=0;
+  function next(){
+    if(i>=events.length){ dueling=false; btn.disabled=false; return; }
+    const ev=events[i++];
+
+    if(ev.type==='turn'){
+      const isAq   = ev.attacker==='Aquiles';
+      const attAnim = isAq ? animAq : animLe;
+      const defAnim = isAq ? animLe : animAq;
+
+      // attacker sequence
+      attAnim.queue=[];
+      pushPose(attAnim,'anticipacion',420);
+      pushPose(attAnim,'ataque',      480);
+      pushPose(attAnim,'idle',        700);
+      startNext(attAnim, performance.now());
+
+      // defender reaction (slightly delayed)
+      const defPose = ev.result==='hit' ? 'impacto'
+                    : ev.result==='parry'? 'parada' : 'esquiva';
+      setTimeout(()=>{
+        defAnim.queue=[];
+        pushPose(defAnim, defPose, 500);
+        pushPose(defAnim,'idle',700);
+        startNext(defAnim, performance.now());
+      }, REDUCED ? 0 : DEF_LAG);
+
+      // impact moment: log + HP + clash
+      setTimeout(()=>{
+        addLog(ev.log, ev.result);
+        updateHP(ev.aqHp, ev.leHp);
+        const cx=(attAnim.curX+defAnim.curX)/2;
+        triggerClash(cx, GROUND_Y-45, ev.result);
+      }, REDUCED ? 0 : LOG_AT);
+
+      setTimeout(next, REDUCED ? 80 : TURN_DUR);
+
+    } else if(ev.type==='death'){
+      const fallen  = ev.fallen==='Aquiles' ? animAq : animLe;
+      setTimeout(()=>{
+        fallen.alive=false;
+        fallen.queue=[];
+        pushPose(fallen,'caida',900);
+        startNext(fallen, performance.now());
+        addLog(`☩ ${ev.fallen} cae. ¡${ev.winner} es victorioso!`,'death');
+        setTimeout(()=>{ dueling=false; btn.disabled=false; }, 1400);
+      }, REDUCED ? 0 : 500);
+
+    } else if(ev.type==='draw'){
+      addLog(ev.log,'sys');
+      setTimeout(()=>{ dueling=false; btn.disabled=false; }, REDUCED ? 0 : 800);
+    }
+  }
+
+  setTimeout(next, REDUCED ? 0 : 500);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+initAnims();
+updateHP(100,100);
+
+document.getElementById('btn').addEventListener('click',()=>{
+  if(dueling) return;
+  initAnims();
+  updateHP(100,100);
+  const events=runDuel();
+  playEvents(events);
+});
+</script>
+</body>
+</html>
