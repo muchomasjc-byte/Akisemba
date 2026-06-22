@@ -617,6 +617,8 @@ function initAnims(){
   clash.active=false;
 }
 
+initAnims(); // must run before the RAF loop references animAq/animLe
+
 (function loop(now){
   requestAnimationFrame(loop);
   animAq.breathPhase+=.018;
@@ -722,7 +724,6 @@ function playEvents(events){
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
-initAnims();
 updateHP(100,100);
 
 document.getElementById('btn').addEventListener('click',()=>{
