@@ -164,6 +164,119 @@ const POSE_KEYS = Object.keys(POSES.idle);
 
 function clonePose(p){ return {...p}; }
 
+// ─── PARTICLE SYSTEM ─────────────────────────────────────────────────────────
+// Generic pool: each particle has pos, vel, life, size, rgb, gravity, type.
+// type = 'dust' | 'spark'
+const MAX_P    = REDUCED ? 30 : 250;
+const CRIT_DMG = 22;          // damage threshold for critical burst
+const particles = [];
+
+// Separate quick flash for crit (drawn fullscreen-ish, not a particle)
+const flash = {active:false, x:0, y:0, startTime:0, dur:180};
+
+function mkP(x,y,vx,vy,life,size,r,g,b,grav,type){
+  return {x,y,vx,vy,life,maxLife:life,size,r,g,b,grav,type};
+}
+
+// dustDir: -1=leftward, 0=omnidirectional, 1=rightward
+function emitDust(x, y, n, dustDir){
+  if(REDUCED) n=Math.min(n,2);
+  for(let i=0; i<n && particles.length<MAX_P; i++){
+    let a;
+    if(dustDir>0)      a=(Math.random()-.5)*π;
+    else if(dustDir<0) a=π+(Math.random()-.5)*π;
+    else               a=Math.random()*π*2;
+    const sp=.4+Math.random()*2;
+    particles.push(mkP(
+      x+(Math.random()-.5)*26, y+Math.random()*6,
+      Math.cos(a)*sp, -Math.random()*1.3,
+      28+Math.random()*32, 2+Math.random()*4.5,
+      122+Math.random()*58, 82+Math.random()*36, 36+Math.random()*26,
+      .045, 'dust'
+    ));
+  }
+}
+
+function emitSparks(x, y, n, crit){
+  if(REDUCED) n=Math.max(1, Math.floor(n*.15));
+  for(let i=0; i<n && particles.length<MAX_P; i++){
+    const a = -π*(.08+Math.random()*.92);     // upward arc, full spread
+    const sp = (crit?2.8:1.4)+Math.random()*(crit?5.2:3.6);
+    particles.push(mkP(
+      x+(Math.random()-.5)*10, y+(Math.random()-.5)*10,
+      Math.cos(a)*sp, Math.sin(a)*sp,
+      18+Math.random()*24,
+      crit?(1+Math.random()*2.2):(.6+Math.random()*1.6),
+      190+Math.random()*65, 135+Math.random()*90, 8+Math.random()*58,
+      .22, 'spark'
+    ));
+  }
+}
+
+function triggerFlash(x,y){
+  if(REDUCED) return;
+  flash.active=true; flash.x=x; flash.y=y; flash.startTime=performance.now();
+}
+
+// Swap-with-last removal — O(n) total, no splice cost
+function updateParticles(){
+  let i=0;
+  while(i<particles.length){
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy;
+    p.vy+=p.grav; p.vx*=.97;
+    if(--p.life<=0){
+      particles[i]=particles[particles.length-1];
+      particles.pop();
+    } else i++;
+  }
+}
+
+function drawDust(){
+  if(!particles.length) return;
+  ctx.save();
+  for(const p of particles){
+    if(p.type!=='dust') continue;
+    const t=p.life/p.maxLife;
+    ctx.globalAlpha=t*.52;
+    ctx.fillStyle=`rgb(${p.r|0},${p.g|0},${p.b|0})`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size*t*.8+.5, 0, π*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawSparks(){
+  if(!particles.length) return;
+  ctx.save(); ctx.lineCap='round';
+  for(const p of particles){
+    if(p.type!=='spark') continue;
+    const t=p.life/p.maxLife;
+    ctx.globalAlpha=t*.92;
+    ctx.strokeStyle=`rgb(${p.r|0},${p.g|0},${p.b|0})`;
+    ctx.lineWidth=p.size;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x-p.vx*2.8, p.y-p.vy*2.8);   // trailing tail
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawFlash(){
+  if(!flash.active) return;
+  const t=Math.min((performance.now()-flash.startTime)/flash.dur, 1);
+  if(t>=1){ flash.active=false; return; }
+  const a=(1-t*t)*.60;
+  ctx.save(); ctx.globalAlpha=a;
+  const g=ctx.createRadialGradient(flash.x,flash.y,0, flash.x,flash.y,85+t*28);
+  g.addColorStop(0,'rgba(255,248,195,1)');
+  g.addColorStop(.35,'rgba(255,195,60,.55)');
+  g.addColorStop(1,'rgba(255,90,0,0)');
+  ctx.fillStyle=g;
+  ctx.beginPath(); ctx.arc(flash.x,flash.y,115, 0,π*2); ctx.fill();
+  ctx.restore();
+}
+
 // ─── easing ──────────────────────────────────────────────────────────────────
 function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
 
@@ -466,8 +579,11 @@ function drawScene(animAq, animLe){
     ctx.restore();
   });
 
+  drawDust();                  // below fighters — ground-level sand clouds
   drawFighter(animAq, CFG_AQ);
   drawFighter(animLe, CFG_LE);
+  drawSparks();                // above fighters — metal sparks with trails
+  drawFlash();                 // critical hit radial burst
   drawClash();
 }
 
@@ -496,6 +612,9 @@ let animAq, animLe, dueling=false;
 function initAnims(){
   animAq = mkAnim(AQ_BX, 1);
   animLe = mkAnim(LE_BX,-1);
+  particles.length=0;
+  flash.active=false;
+  clash.active=false;
 }
 
 (function loop(now){
@@ -505,6 +624,7 @@ function initAnims(){
   updateAnim(animAq,now);
   updateAnim(animLe,now);
   if(!dueling){ applyBreath(animAq); applyBreath(animLe); }
+  updateParticles();
   drawScene(animAq,animLe);
 })();
 
@@ -533,7 +653,7 @@ function playEvents(events){
     const ev=events[i++];
 
     if(ev.type==='turn'){
-      const isAq   = ev.attacker==='Aquiles';
+      const isAq    = ev.attacker==='Aquiles';
       const attAnim = isAq ? animAq : animLe;
       const defAnim = isAq ? animLe : animAq;
 
@@ -543,6 +663,11 @@ function playEvents(events){
       pushPose(attAnim,'ataque',      480);
       pushPose(attAnim,'idle',        700);
       startNext(attAnim, performance.now());
+
+      // dust puff when foot plants for the lunge (at ataque start ~420 ms)
+      setTimeout(()=>{
+        emitDust(attAnim.curX, GROUND_Y+15, 10, -attAnim.dir);
+      }, REDUCED ? 0 : 420);
 
       // defender reaction (slightly delayed)
       const defPose = ev.result==='hit' ? 'impacto'
@@ -554,12 +679,23 @@ function playEvents(events){
         startNext(defAnim, performance.now());
       }, REDUCED ? 0 : DEF_LAG);
 
-      // impact moment: log + HP + clash
+      // impact moment: log + HP + clash + particles
       setTimeout(()=>{
         addLog(ev.log, ev.result);
         updateHP(ev.aqHp, ev.leHp);
-        const cx=(attAnim.curX+defAnim.curX)/2;
+        const cx  = (attAnim.curX+defAnim.curX)/2;
+        const crit = ev.result==='hit' && ev.damage>=CRIT_DMG;
         triggerClash(cx, GROUND_Y-45, ev.result);
+        if(ev.result==='hit'){
+          emitSparks(cx, GROUND_Y-45, crit?38:20, crit);
+          emitDust(defAnim.curX, GROUND_Y+15, 14, 0);
+          if(crit) triggerFlash(cx, GROUND_Y-45);
+        } else if(ev.result==='parry'){
+          emitSparks(cx, GROUND_Y-60, 24, false);
+          emitDust(attAnim.curX, GROUND_Y+15, 6, -attAnim.dir);
+        } else {
+          emitDust(defAnim.curX, GROUND_Y+15, 6, 0);
+        }
       }, REDUCED ? 0 : LOG_AT);
 
       setTimeout(next, REDUCED ? 80 : TURN_DUR);
@@ -571,6 +707,7 @@ function playEvents(events){
         fallen.queue=[];
         pushPose(fallen,'caida',900);
         startNext(fallen, performance.now());
+        emitDust(fallen.curX, GROUND_Y+15, 30, 0);   // body hits the ground
         addLog(`☩ ${ev.fallen} cae. ¡${ev.winner} es victorioso!`,'death');
         setTimeout(()=>{ dueling=false; btn.disabled=false; }, 1400);
       }, REDUCED ? 0 : 500);
